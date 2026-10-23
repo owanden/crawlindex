@@ -1,0 +1,28 @@
+name: verify
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  containers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Race and PostgreSQL behavior checks
+        run: docker compose --profile test run --build --rm test sh -c 'go vet ./... && go test -race -count=1 ./...'
+      - name: Build runtime and start two workers
+        run: docker compose up --build -d --scale worker=2 api worker fixture
+      - name: Verify submission, extraction and search
+        run: python3 scripts/demo.py
+      - name: Restart API and workers with stored documents
+        run: |
+          docker compose restart db api worker
+          python3 scripts/demo.py
+      - name: Render Kubernetes package
+        run: kubectl kustomize deploy/local > /tmp/crawlindex.yaml
+      - name: Logs
+        if: always()
+        run: docker compose logs --no-color
+      - name: Stop owned stack
+        if: always()
+        run: docker compose --profile test down

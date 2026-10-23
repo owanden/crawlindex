@@ -1,0 +1,31 @@
+{
+  "deduplicated_job": {
+    "id": 1,
+    "url": "http://fixture:8081/",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": ""
+  },
+  "document": {
+    "id": 1,
+    "url": "http://fixture:8081/",
+    "title": "CrawlIndex fixture",
+    "body": "Distributed crawling Durable jobs and searchable documents. Lease recovery Search index"
+  },
+  "search": [
+    {
+      "id": 3,
+      "url": "http://fixture:8081/leases",
+      "title": "Worker leases",
+      "body": "PostgreSQL leases recover interrupted crawling jobs. Home"
+    },
+    {
+      "id": 4,
+      "url": "http://fixture:8081/search",
+      "title": "Document search",
+      "body": "PostgreSQL full text indexing finds extracted document content. Home"
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+spec:
+  selector: {app: db}
+  ports:
+    - port: 5432
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: db
+spec:
+  serviceName: db
+  replicas: 1
+  selector:
+    matchLabels: {app: db}
+  template:
+    metadata:
+      labels: {app: db}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:17.6-bookworm
+          env:
+            - {name: POSTGRES_USER, value: crawler}
+            - {name: POSTGRES_PASSWORD, value: local-only}
+            - {name: POSTGRES_DB, value: crawler}
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+          ports:
+            - {containerPort: 5432}
+          readinessProbe:
+            exec: {command: [pg_isready, -U, crawler, -d, crawler]}
+          resources:
+            requests: {cpu: 100m, memory: 128Mi}
+            limits: {cpu: "1", memory: 512Mi}
+          volumeMounts:
+            - {name: data, mountPath: /var/lib/postgresql/data}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec:
+        accessModes: [ReadWriteOnce]
+        resources:
+          requests: {storage: 1Gi}
