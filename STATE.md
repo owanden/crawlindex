@@ -1,11 +1,11 @@
 # Project state
 
-Updated October 23, 2026.
+Updated October 26, 2026.
 
 Initial implementation complete: Go API and fixed-goroutine workers, PostgreSQL leases/deduplication/retries, bounded HTML extraction, stored documents, weighted full-text search, synthetic fixture and Docker Compose. Static checks and local integration race checks passed against PostgreSQL 17.6, including killed-process recovery, terminal lease expiry and SIGTERM drain. Packaged API, fixture and two worker containers ran successfully; stored documents/search survived simultaneous database/API/worker restart. Results and the corrected initial restart failure are in docs/verification.md.
 
-Kubernetes manifests render locally; no cluster context exists on the implementation machine. GCP remains a later deployment target; nothing has been provisioned. No benchmark or production-use claim exists.
+Kubernetes local milestone passed on kind v0.30.0/server v1.34.0: actual image loading and package rollouts, two ready workers and real search, hard container exit 137 followed by pod deletion, normal-lease recovery to a new pod at attempt two, and scaling one to three workers with six completed single-attempt jobs. Owned cluster deleted; default kubeconfig unchanged. [Actual local report](docs/kubernetes-local-report.json) preserves the precommit source boundary. Setup/image-load/pod-deletion failures and corrections remain documented in [verification](docs/verification.md). The new dedicated Linux CI job awaits exact-commit acceptance. GCP remains undeployed; no performance or production-use claim exists.
 
-Next milestone: validate the Kubernetes package in an explicitly selected disposable local cluster, including image loading, readiness, two-worker operation, pod deletion/recovery and scaling. Before broadening beyond controlled fixtures, implement crawl admission budgets, robots policy and network trust boundaries. Keep this runnable slice coherent before adding distributed features.
+Next action: inspect exact-commit Kubernetes CI and its actual artifact. Next implementation milestone: a durable admission budget covering explicit seeds and discovered URLs under concurrent workers, with deterministic duplicate behavior and a reproducible cap-exhaustion scenario. Robots policy and network trust boundaries still precede public-web crawling. Keep this runnable slice coherent before adding distributed features.
 
 Publication boundary: this standalone repository only. Local environment files and temporary outputs are excluded.

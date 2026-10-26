@@ -1,0 +1,132 @@
+{
+  "cluster": "crawlindex-smoke-7b63522b",
+  "context": "kind-crawlindex-smoke-7b63522b",
+  "node_image": "kindest/node:v1.34.0@sha256:7416a61b42b1662ca6ca89f02028ac133a309a2a30ba309614e8ec94d976dc5a",
+  "status": "passed",
+  "started_at": "2026-10-26T19:29:28.054066+00:00",
+  "revision": "a3ede4323587be0dcbb15951ee2187f963f3e3ac",
+  "source_status": "M .github/workflows/ci.yaml\n M .gitignore\n M README.md\n M STATE.md\n M cmd/crawlindex/main.go\n M deploy/README.md\n?? cmd/crawlindex/fixture.go\n?? cmd/crawlindex/fixture_test.go\n?? scripts/install_kubernetes_tools.py\n?? scripts/kubernetes_smoke.py",
+  "kind_version": "kind v0.30.0 go1.24.6 windows/amd64",
+  "kubectl_client": "v1.34.0",
+  "docker_version": "28.3.0",
+  "server_version": "v1.34.0",
+  "application_image_id": "sha256:1b446d64276e9323c6ac301b6aa6066d8e5255b767f8d0c9c487de2957dab5aa",
+  "initial_worker_uids": [
+    "cb2126e6-c15d-4f7d-82f9-19e2230e39a7",
+    "348f4189-2445-4bb2-8ecc-b57db6a69eaa"
+  ],
+  "search_titles": [
+    "Document search",
+    "Worker leases"
+  ],
+  "scale_down_ready": 1,
+  "pod_recovery": {
+    "job_id": 7,
+    "deleted_uid": "cb2126e6-c15d-4f7d-82f9-19e2230e39a7",
+    "replacement_uid": "8b6039e8-2710-42cb-b2d5-d692bc139518",
+    "container_id": "containerd://21ca424863642735a929e995e5b4037f8ad179e74ff510b5920e7ad289abdcdb",
+    "stopped_container": {
+      "state": "CONTAINER_EXITED",
+      "exit_code": 137
+    },
+    "before_delete": {
+      "id": 7,
+      "url": "http://fixture:8081/gate",
+      "origin": "http://fixture:8081",
+      "depth": 0,
+      "state": "leased",
+      "attempts": 1,
+      "last_error": ""
+    },
+    "after_delete": {
+      "id": 7,
+      "url": "http://fixture:8081/gate",
+      "origin": "http://fixture:8081",
+      "depth": 0,
+      "state": "leased",
+      "attempts": 1,
+      "last_error": ""
+    },
+    "completed": {
+      "id": 7,
+      "url": "http://fixture:8081/gate",
+      "origin": "http://fixture:8081",
+      "depth": 0,
+      "state": "done",
+      "attempts": 2,
+      "last_error": ""
+    },
+    "fixture": {
+      "active": 0,
+      "requests": 2
+    },
+    "observed_seconds": 20.093
+  },
+  "scale_up": {
+    "ready_replicas": 3,
+    "pod_uids": [
+      "f3154593-648a-40bf-974d-f76dbc0745a3",
+      "bcbb864d-a036-4592-993f-8dac18cf280b",
+      "8b6039e8-2710-42cb-b2d5-d692bc139518"
+    ],
+    "jobs": [
+      {
+        "id": 8,
+        "url": "http://fixture:8081/?scale=0",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 11,
+        "url": "http://fixture:8081/?scale=1",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 12,
+        "url": "http://fixture:8081/?scale=2",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 13,
+        "url": "http://fixture:8081/?scale=3",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 14,
+        "url": "http://fixture:8081/?scale=4",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 15,
+        "url": "http://fixture:8081/?scale=5",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      }
+    ]
+  },
+  "cluster_deleted": true,
+  "default_kubeconfig_unchanged": true,
+  "finished_at": "2026-10-26T19:31:22.176854+00:00"
+}

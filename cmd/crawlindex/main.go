@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"os"
@@ -106,24 +105,4 @@ func serve(ctx context.Context, addr string, h http.Handler) error {
 		return nil
 	}
 	return err
-}
-
-func fixture() http.Handler {
-	m := http.NewServeMux()
-	pages := map[string]string{
-		"/":       "<title>CrawlIndex fixture</title><h1>Distributed crawling</h1><p>Durable jobs and searchable documents.</p><a href='/leases'>Lease recovery</a><a href='/search'>Search index</a>",
-		"/leases": "<title>Worker leases</title><p>PostgreSQL leases recover interrupted crawling jobs.</p><a href='/'>Home</a>",
-		"/search": "<title>Document search</title><p>PostgreSQL full text indexing finds extracted document content.</p><script>invisibleword</script><a href='/'>Home</a>",
-	}
-	for path, body := range pages {
-		m.HandleFunc("GET "+path, func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path != path {
-				http.NotFound(w, r)
-				return
-			}
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
-			fmt.Fprint(w, body)
-		})
-	}
-	return m
 }

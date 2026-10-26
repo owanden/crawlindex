@@ -50,4 +50,4 @@ API and worker startup retry database connections within a 15-second deadline, i
 
 This is a controlled-origin implementation, with no authentication, robots policy, DNS rebinding defense, global crawl budget, recrawl scheduling or production operations. Do not expose the API or point it at untrusted/public-web targets. The database and fixture are local demo services. No throughput/capacity measurement or cloud deployment is claimed.
 
-[Kubernetes packaging](deploy/README.md) includes a local two-worker configuration. [GCP deployment boundary](deploy/gcp/README.md) describes the later image/identity/database requirements; it provisions nothing. Current milestone and next action are in [STATE.md](STATE.md).
+[Kubernetes packaging and disposable verification](deploy/README.md) include a two-worker configuration and an isolated kind harness for real pod-loss recovery and scaling checks. Accepted execution results are recorded in [verification](docs/verification.md). [GCP deployment boundary](deploy/gcp/README.md) describes the later image/identity/database requirements; it provisions nothing. Current milestone and next action are in [STATE.md](STATE.md).

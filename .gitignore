@@ -2,3 +2,4 @@
 .work/
 coverage.out
 /crawlindex
+__pycache__/

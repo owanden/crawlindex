@@ -26,3 +26,25 @@ jobs:
       - name: Stop owned stack
         if: always()
         run: docker compose --profile test down
+  kubernetes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install checksum-verified pinned cluster tools
+        run: python3 scripts/install_kubernetes_tools.py .work/tools
+      - name: Verify real Kubernetes recovery and scaling
+        run: python3 scripts/kubernetes_smoke.py --kind "$PWD/.work/tools/kind" --kubectl "$PWD/.work/tools/kubectl" --output .work/kubernetes
+      - name: Preserve report and bounded diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubernetes-smoke
+          if-no-files-found: warn
+          path: |
+            .work/kubernetes/report.json
+            .work/kubernetes/commands.log
+            .work/kubernetes/pods.json
+            .work/kubernetes/events.json
+            .work/kubernetes/worker.log
+            .work/kubernetes/rendered.yaml
