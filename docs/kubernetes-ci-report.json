@@ -1,0 +1,132 @@
+{
+  "cluster": "crawlindex-smoke-7916fe75",
+  "context": "kind-crawlindex-smoke-7916fe75",
+  "node_image": "kindest/node:v1.34.0@sha256:7416a61b42b1662ca6ca89f02028ac133a309a2a30ba309614e8ec94d976dc5a",
+  "status": "passed",
+  "started_at": "2026-10-26T19:32:56.152841+00:00",
+  "revision": "041056f3c814ff57a786da26942ef9eb3f366953",
+  "source_status": "",
+  "kind_version": "kind v0.30.0 go1.24.6 linux/amd64",
+  "kubectl_client": "v1.34.0",
+  "docker_version": "28.0.4",
+  "server_version": "v1.34.0",
+  "application_image_id": "sha256:6fa0f186959be3fe531c60e1d4e85d4a922f8f45f44dbf3e9c516e0ea0a2be31",
+  "initial_worker_uids": [
+    "d47103a8-5f47-46e1-81a5-a6a45004b700",
+    "d2ea9517-3ba3-43b2-902b-bbca8ae1ae7c"
+  ],
+  "search_titles": [
+    "Document search",
+    "Worker leases"
+  ],
+  "scale_down_ready": 1,
+  "pod_recovery": {
+    "job_id": 7,
+    "deleted_uid": "d47103a8-5f47-46e1-81a5-a6a45004b700",
+    "replacement_uid": "63cfcb13-3521-4ba6-a4ad-1155c56318c9",
+    "container_id": "containerd://7597e82bd6be1e3160859842b178f4c9c5fc77f91afd95a76ef856ef33c50e53",
+    "stopped_container": {
+      "state": "CONTAINER_EXITED",
+      "exit_code": 137
+    },
+    "before_delete": {
+      "id": 7,
+      "url": "http://fixture:8081/gate",
+      "origin": "http://fixture:8081",
+      "depth": 0,
+      "state": "leased",
+      "attempts": 1,
+      "last_error": ""
+    },
+    "after_delete": {
+      "id": 7,
+      "url": "http://fixture:8081/gate",
+      "origin": "http://fixture:8081",
+      "depth": 0,
+      "state": "leased",
+      "attempts": 1,
+      "last_error": ""
+    },
+    "completed": {
+      "id": 7,
+      "url": "http://fixture:8081/gate",
+      "origin": "http://fixture:8081",
+      "depth": 0,
+      "state": "done",
+      "attempts": 2,
+      "last_error": ""
+    },
+    "fixture": {
+      "active": 0,
+      "requests": 2
+    },
+    "observed_seconds": 20.134
+  },
+  "scale_up": {
+    "ready_replicas": 3,
+    "pod_uids": [
+      "63cfcb13-3521-4ba6-a4ad-1155c56318c9",
+      "d4cb2630-2424-4db4-8dea-8d69d3f36237",
+      "2923acc5-2519-46d8-b54a-a2b8cf43f7f9"
+    ],
+    "jobs": [
+      {
+        "id": 8,
+        "url": "http://fixture:8081/?scale=0",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 9,
+        "url": "http://fixture:8081/?scale=1",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 10,
+        "url": "http://fixture:8081/?scale=2",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 11,
+        "url": "http://fixture:8081/?scale=3",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 12,
+        "url": "http://fixture:8081/?scale=4",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      },
+      {
+        "id": 13,
+        "url": "http://fixture:8081/?scale=5",
+        "origin": "http://fixture:8081",
+        "depth": 0,
+        "state": "done",
+        "attempts": 1,
+        "last_error": ""
+      }
+    ]
+  },
+  "cluster_deleted": true,
+  "default_kubeconfig_unchanged": true,
+  "finished_at": "2026-10-26T19:35:13.875745+00:00"
+}
