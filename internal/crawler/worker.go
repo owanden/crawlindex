@@ -22,7 +22,7 @@ type Worker struct {
 }
 
 func (w Worker) Run(ctx context.Context) error {
-	if w.Concurrency < 1 || w.Concurrency > 64 || w.Lease <= w.Fetcher.Client.Timeout+time.Second || w.Fetcher.Client.Timeout <= 0 || w.DomainInterval < time.Millisecond || w.RetryDelay < time.Millisecond || w.MaxAttempts < 1 {
+	if w.Concurrency < 1 || w.Concurrency > 64 || w.Lease <= 2*w.Fetcher.Client.Timeout+w.DomainInterval+time.Second || w.Fetcher.Client.Timeout <= 0 || w.DomainInterval < time.Millisecond || w.RetryDelay < time.Millisecond || w.MaxAttempts < 1 {
 		return errors.New("invalid worker configuration")
 	}
 	var wg sync.WaitGroup
@@ -54,12 +54,31 @@ func (w Worker) loop(ctx context.Context) {
 		slog.Info("job leased", "id", j.ID, "attempt", j.Attempts)
 		var doc Document
 		var links []string
-		_, _, err = w.Policy.Normalize(j.URL)
+		decision, checkErr := w.Store.CheckRobots(workCtx, w.Policy, w.Fetcher, j.URL)
+		if checkErr == nil && !decision.Allowed && !decision.Temporary {
+			err = w.Store.DenyRobots(workCtx, j, decision.Reason)
+			done()
+			if err != nil {
+				slog.Error("robots denial commit failed", "id", j.ID, "error", err)
+			}
+			continue
+		}
+		err = checkErr
+		delay := w.RetryDelay
+		if err == nil && decision.Temporary {
+			err = errors.New(decision.Reason)
+			if decision.RetryAfter > delay {
+				delay = decision.RetryAfter
+			}
+		}
+		if err == nil {
+			err = w.Store.RequestSlot(workCtx, j.Origin, w.DomainInterval)
+		}
 		if err == nil {
 			doc, links, err = w.Fetcher.Fetch(workCtx, j.URL)
 		}
 		if err != nil {
-			err = w.Store.Fail(workCtx, j, err, w.MaxAttempts, w.RetryDelay)
+			err = w.Store.Fail(workCtx, j, err, w.MaxAttempts, delay)
 		} else {
 			err = w.Store.Finish(workCtx, j, doc, links, w.Policy)
 		}

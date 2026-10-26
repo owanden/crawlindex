@@ -45,6 +45,8 @@ func (p Policy) Normalize(raw string) (string, string, error) {
 
 type Fetcher struct{ Client *http.Client }
 
+const UserAgent = "CrawlIndex/0.1 (controlled-origin crawler)"
+
 func NewFetcher(timeout time.Duration) Fetcher {
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.Proxy = nil
@@ -56,7 +58,7 @@ func (f Fetcher) Fetch(ctx context.Context, raw string) (Document, []string, err
 	if err != nil {
 		return Document{}, nil, err
 	}
-	req.Header.Set("User-Agent", "CrawlIndex/0.1 (controlled-origin crawler)")
+	req.Header.Set("User-Agent", UserAgent)
 	resp, err := f.Client.Do(req)
 	if err != nil {
 		return Document{}, nil, errors.New("fetch request failed")

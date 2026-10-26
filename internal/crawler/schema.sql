@@ -35,3 +35,7 @@ CREATE TABLE IF NOT EXISTS admission_budget (
 INSERT INTO admission_budget(id,max_urls)
 SELECT 1,GREATEST(1000,count(*)) FROM jobs
 ON CONFLICT(id) DO NOTHING;
+ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_body text NOT NULL DEFAULT '';
+ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_mode text NOT NULL DEFAULT 'unknown';
+ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_detail text NOT NULL DEFAULT '';
+ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_expires timestamptz NOT NULL DEFAULT '-infinity';

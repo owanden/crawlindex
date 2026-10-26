@@ -103,7 +103,17 @@ func testStore(t *testing.T) (*Store, string) {
 }
 
 func worker(s *Store, origin string) Worker {
-	return Worker{Store: s, Policy: Policy{Origins: map[string]bool{origin: true}, MaxDepth: 2}, Fetcher: NewFetcher(time.Second), Concurrency: 2, Lease: 2500 * time.Millisecond, DomainInterval: 150 * time.Millisecond, RetryDelay: 100 * time.Millisecond, MaxAttempts: 3}
+	return Worker{Store: s, Policy: Policy{Origins: map[string]bool{origin: true}, MaxDepth: 2}, Fetcher: NewFetcher(time.Second), Concurrency: 2, Lease: 4 * time.Second, DomainInterval: 150 * time.Millisecond, RetryDelay: 100 * time.Millisecond, MaxAttempts: 3}
+}
+
+func fixtureServer(h http.Handler) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/robots.txt" {
+			http.NotFound(w, r)
+			return
+		}
+		h.ServeHTTP(w, r)
+	}))
 }
 
 func waitFor(t *testing.T, f func() bool) {
@@ -136,7 +146,7 @@ func startWorker(t *testing.T, w Worker) (context.CancelFunc, <-chan error) {
 
 func TestDurableCrawlAndSearch(t *testing.T) {
 	s, _ := testStore(t)
-	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	fixture := fixtureServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		if r.URL.Path == "/" {
 			fmt.Fprint(w, `<title>Home</title><a href="/leases">leases</a><a href="/leases#copy">copy</a><a href="http://outside.invalid/">outside</a>`)
@@ -260,7 +270,7 @@ func TestTwoWorkersCoordinateDomainAndRetries(t *testing.T) {
 	var mu sync.Mutex
 	var starts []time.Time
 	var flaky atomic.Int32
-	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	fixture := fixtureServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mu.Lock()
 		starts = append(starts, time.Now())
 		mu.Unlock()
@@ -366,7 +376,7 @@ func TestKilledProcessLeaseRecovery(t *testing.T) {
 	ctx := context.Background()
 	var requests atomic.Int32
 	entered := make(chan struct{}, 1)
-	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	fixture := fixtureServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		if requests.Add(1) == 1 {
 			entered <- struct{}{}
@@ -415,7 +425,7 @@ func TestSIGTERMDrainsActiveFetch(t *testing.T) {
 	ctx := context.Background()
 	entered := make(chan struct{}, 1)
 	release := make(chan struct{}, 1)
-	fixture := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	fixture := fixtureServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		entered <- struct{}{}
 		select {
 		case <-release:

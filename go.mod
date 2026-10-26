@@ -4,6 +4,7 @@ go 1.26.0
 
 require (
 	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jimsmart/grobotstxt v1.0.3
 	golang.org/x/net v0.48.0
 )
 

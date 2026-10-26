@@ -12,4 +12,5 @@ RUN CGO_ENABLED=0 go build -trimpath -o /crawlindex ./cmd/crawlindex
 
 FROM gcr.io/distroless/static-debian12:nonroot AS runtime
 COPY --from=build /crawlindex /crawlindex
+COPY --from=build /go/pkg/mod/github.com/jimsmart/grobotstxt@v1.0.3/LICENSE /licenses/grobotstxt-LICENSE
 ENTRYPOINT ["/crawlindex"]

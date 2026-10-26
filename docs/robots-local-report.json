@@ -1,0 +1,80 @@
+{
+  "project": "crawlindex-robots-0f0af468",
+  "status": "passed",
+  "started_at": "2026-10-26T21:18:26.413720+00:00",
+  "revision": "0b0cf6e4ddb0bde70bdfb06e92831e956d6595bd",
+  "source_status": "M .github/workflows/ci.yaml\n M Dockerfile\n M cmd/crawlindex/fixture.go\n M go.mod\n M go.sum\n M internal/crawler/crawler_test.go\n M internal/crawler/fetch.go\n M internal/crawler/schema.sql\n M internal/crawler/worker.go\n?? internal/crawler/robots.go\n?? internal/crawler/robots_test.go\n?? scripts/robots_smoke.py",
+  "docker_version": "28.3.0",
+  "denied_job": {
+    "id": 1,
+    "url": "http://fixture:8081/private",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "failed",
+    "attempts": 1,
+    "last_error": "robots disallowed",
+    "discovery_rejected": 0
+  },
+  "initial_fixture": {
+    "mode": "allow",
+    "page_hits": {
+      "/policy-page": 1,
+      "/private/open": 1
+    },
+    "robots_requests": 1,
+    "wrong_agent": 0
+  },
+  "cache_survived_restart": {
+    "id": 4,
+    "url": "http://fixture:8081/cached",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "temporary_error": {
+    "id": 5,
+    "url": "http://fixture:8081/after-error",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "queued",
+    "attempts": 1,
+    "last_error": "robots HTTP 503",
+    "discovery_rejected": 0
+  },
+  "recovered_job": {
+    "id": 5,
+    "url": "http://fixture:8081/after-error",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 2,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "retry_survived_restart": true,
+  "retry_wait_seconds": 10.578,
+  "running_workers": 2,
+  "final_fixture": {
+    "mode": "missing",
+    "page_hits": {
+      "/after-error": 1,
+      "/cached": 1,
+      "/missing-cache": 1,
+      "/missing-policy": 1,
+      "/policy-page": 1,
+      "/private/open": 1
+    },
+    "robots_requests": 4,
+    "wrong_agent": 0
+  },
+  "budget": {
+    "limit": 1000,
+    "admitted": 7,
+    "remaining": 993
+  },
+  "owned_stack_removed": true,
+  "finished_at": "2026-10-26T21:19:06.596897+00:00"
+}
