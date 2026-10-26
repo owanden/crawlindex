@@ -27,3 +27,11 @@ CREATE TABLE IF NOT EXISTS documents (
     ) STORED
 );
 CREATE INDEX IF NOT EXISTS documents_search ON documents USING gin(search);
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS discovery_rejected integer NOT NULL DEFAULT 0 CHECK (discovery_rejected >= 0);
+CREATE TABLE IF NOT EXISTS admission_budget (
+    id integer PRIMARY KEY CHECK (id = 1),
+    max_urls bigint NOT NULL CHECK (max_urls > 0)
+);
+INSERT INTO admission_budget(id,max_urls)
+SELECT 1,GREATEST(1000,count(*)) FROM jobs
+ON CONFLICT(id) DO NOTHING;

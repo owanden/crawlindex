@@ -1,0 +1,34 @@
+{
+  "project": "crawlindex-admission-bc3c318e",
+  "status": "passed",
+  "started_at": "2026-10-26T20:05:27.206923+00:00",
+  "revision": "8d78393f26a76838db6120885c4f0809ebadc09b",
+  "source_status": "M .github/workflows/ci.yaml\n M internal/crawler/api.go\n M internal/crawler/schema.sql\n M internal/crawler/store.go\n?? internal/crawler/admission_test.go\n?? scripts/admission_smoke.py",
+  "docker_version": "28.3.0",
+  "running_workers": 2,
+  "completed_seed": {
+    "id": 1,
+    "url": "http://fixture:8081/",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 1
+  },
+  "before_restart": {
+    "limit": 2,
+    "admitted": 2,
+    "remaining": 0
+  },
+  "burst_duplicates_accepted": 8,
+  "burst_new_seeds_rejected": 8,
+  "published_port_changed_on_restart": true,
+  "after_restart": {
+    "limit": 2,
+    "admitted": 2,
+    "remaining": 0
+  },
+  "owned_stack_removed": true,
+  "finished_at": "2026-10-26T20:05:52.534949+00:00"
+}

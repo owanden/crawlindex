@@ -14,17 +14,44 @@ import (
 var schema string
 
 var ErrLeaseLost = errors.New("lease lost")
+var ErrBudgetExceeded = errors.New("URL admission budget exhausted")
 
 type Store struct{ DB *pgxpool.Pool }
 
 type Job struct {
-	ID        int64  `json:"id"`
-	URL       string `json:"url"`
-	Origin    string `json:"origin"`
-	Depth     int    `json:"depth"`
-	State     string `json:"state"`
-	Attempts  int    `json:"attempts"`
-	LastError string `json:"last_error"`
+	ID                int64  `json:"id"`
+	URL               string `json:"url"`
+	Origin            string `json:"origin"`
+	Depth             int    `json:"depth"`
+	State             string `json:"state"`
+	Attempts          int    `json:"attempts"`
+	LastError         string `json:"last_error"`
+	DiscoveryRejected int    `json:"discovery_rejected"`
+}
+
+type Budget struct {
+	Limit     int64 `json:"limit"`
+	Admitted  int64 `json:"admitted"`
+	Remaining int64 `json:"remaining"`
+}
+
+func lockBudget(ctx context.Context, tx pgx.Tx) (Budget, error) {
+	var b Budget
+	if err := tx.QueryRow(ctx, `SELECT max_urls FROM admission_budget WHERE id=1 FOR UPDATE`).Scan(&b.Limit); err != nil {
+		return b, err
+	}
+	if err := tx.QueryRow(ctx, `SELECT count(*) FROM jobs`).Scan(&b.Admitted); err != nil {
+		return b, err
+	}
+	b.Remaining = b.Limit - b.Admitted
+	return b, nil
+}
+
+func (s *Store) Budget(ctx context.Context) (Budget, error) {
+	var b Budget
+	err := s.DB.QueryRow(ctx, `SELECT max_urls,(SELECT count(*) FROM jobs) FROM admission_budget WHERE id=1`).Scan(&b.Limit, &b.Admitted)
+	b.Remaining = b.Limit - b.Admitted
+	return b, err
 }
 
 type Document struct {
@@ -61,26 +88,43 @@ func (s *Store) Migrate(ctx context.Context) error {
 	return tx.Commit(ctx)
 }
 
-func enqueue(ctx context.Context, tx pgx.Tx, raw, origin string, depth int) (int64, error) {
+func enqueue(ctx context.Context, tx pgx.Tx, budget *Budget, raw, origin string, depth int) (int64, error) {
+	var id int64
+	err := tx.QueryRow(ctx, `SELECT id FROM jobs WHERE url=$1`, raw).Scan(&id)
+	if err == nil {
+		return id, nil
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		return 0, err
+	}
+	if budget.Remaining <= 0 {
+		return 0, ErrBudgetExceeded
+	}
 	if _, err := tx.Exec(ctx, `INSERT INTO domains(origin) VALUES($1) ON CONFLICT DO NOTHING`, origin); err != nil {
 		return 0, err
 	}
-	var id int64
-	err := tx.QueryRow(ctx, `INSERT INTO jobs(url,origin,depth) VALUES($1,$2,$3)
+	err = tx.QueryRow(ctx, `INSERT INTO jobs(url,origin,depth) VALUES($1,$2,$3)
  ON CONFLICT(url) DO NOTHING RETURNING id`, raw, origin, depth).Scan(&id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = tx.QueryRow(ctx, `SELECT id FROM jobs WHERE url=$1`, raw).Scan(&id)
+	} else if err == nil {
+		budget.Admitted++
+		budget.Remaining--
 	}
 	return id, err
 }
 
 func (s *Store) Submit(ctx context.Context, raw, origin string) (int64, error) {
-	tx, err := s.DB.Begin(ctx)
+	tx, err := s.DB.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return 0, err
 	}
 	defer tx.Rollback(ctx)
-	id, err := enqueue(ctx, tx, raw, origin, 0)
+	budget, err := lockBudget(ctx, tx)
+	if err != nil {
+		return 0, err
+	}
+	id, err := enqueue(ctx, tx, &budget, raw, origin, 0)
 	if err != nil {
 		return 0, err
 	}
@@ -102,7 +146,7 @@ func (s *Store) Claim(ctx context.Context, lease, interval time.Duration, maxAtt
 	err = tx.QueryRow(ctx, `SELECT d.origin FROM domains d WHERE next_at<=now() AND EXISTS (
  SELECT 1 FROM jobs j WHERE j.origin=d.origin AND j.attempts<$1 AND
  ((j.state='queued' AND j.available_at<=now()) OR (j.state='leased' AND j.lease_until<=now())))
- ORDER BY next_at,origin FOR UPDATE OF d SKIP LOCKED LIMIT 1`, maxAttempts).Scan(&origin)
+ ORDER BY next_at,origin FOR NO KEY UPDATE OF d SKIP LOCKED LIMIT 1`, maxAttempts).Scan(&origin)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			if commitErr := tx.Commit(ctx); commitErr != nil {
@@ -130,13 +174,17 @@ func (s *Store) Claim(ctx context.Context, lease, interval time.Duration, maxAtt
 }
 
 func (s *Store) Finish(ctx context.Context, j Job, doc Document, links []string, policy Policy) error {
-	tx, err := s.DB.Begin(ctx)
+	tx, err := s.DB.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
+	budget, err := lockBudget(ctx, tx)
+	if err != nil {
+		return err
+	}
 	tag, err := tx.Exec(ctx, `UPDATE jobs SET state='done',lease_until=NULL,last_error='',updated_at=now()
- WHERE id=$1 AND attempts=$2 AND state='leased' AND lease_until>now()`, j.ID, j.Attempts)
+ WHERE id=$1 AND attempts=$2 AND state='leased' AND lease_until>clock_timestamp()`, j.ID, j.Attempts)
 	if err != nil {
 		return err
 	}
@@ -148,16 +196,27 @@ func (s *Store) Finish(ctx context.Context, j Job, doc Document, links []string,
 	if err != nil {
 		return err
 	}
+	rejected := 0
+	seen := map[string]bool{}
 	if j.Depth < policy.MaxDepth {
 		for _, link := range links {
 			u, origin, e := policy.Normalize(link)
 			if e != nil {
 				continue
 			}
-			if _, err = enqueue(ctx, tx, u, origin, j.Depth+1); err != nil {
+			if seen[u] {
+				continue
+			}
+			seen[u] = true
+			if _, err = enqueue(ctx, tx, &budget, u, origin, j.Depth+1); errors.Is(err, ErrBudgetExceeded) {
+				rejected++
+			} else if err != nil {
 				return err
 			}
 		}
+	}
+	if _, err = tx.Exec(ctx, `UPDATE jobs SET discovery_rejected=$2 WHERE id=$1`, j.ID, rejected); err != nil {
+		return err
 	}
 	return tx.Commit(ctx)
 }
@@ -174,8 +233,8 @@ func (s *Store) Fail(ctx context.Context, j Job, cause error, maxAttempts int, d
 
 func (s *Store) Job(ctx context.Context, id int64) (Job, error) {
 	var j Job
-	err := s.DB.QueryRow(ctx, `SELECT id,url,origin,depth,state,attempts,last_error FROM jobs WHERE id=$1`, id).
-		Scan(&j.ID, &j.URL, &j.Origin, &j.Depth, &j.State, &j.Attempts, &j.LastError)
+	err := s.DB.QueryRow(ctx, `SELECT id,url,origin,depth,state,attempts,last_error,discovery_rejected FROM jobs WHERE id=$1`, id).
+		Scan(&j.ID, &j.URL, &j.Origin, &j.Depth, &j.State, &j.Attempts, &j.LastError, &j.DiscoveryRejected)
 	return j, err
 }
 

@@ -34,6 +34,14 @@ func Handler(s *Store, p Policy) http.Handler {
 		}
 		write(w, 200, map[string]string{"status": "ok"})
 	})
+	mux.HandleFunc("GET /admission", func(w http.ResponseWriter, r *http.Request) {
+		budget, err := s.Budget(r.Context())
+		if err != nil {
+			failure(w, err)
+			return
+		}
+		write(w, 200, budget)
+	})
 	mux.HandleFunc("POST /urls", func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			URL string `json:"url"`
@@ -54,6 +62,10 @@ func Handler(s *Store, p Policy) http.Handler {
 			return
 		}
 		id, err := s.Submit(r.Context(), u, origin)
+		if errors.Is(err, ErrBudgetExceeded) {
+			write(w, 409, map[string]string{"error": ErrBudgetExceeded.Error()})
+			return
+		}
 		if err != nil {
 			failure(w, err)
 			return
