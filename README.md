@@ -37,6 +37,7 @@ API and worker startup retry database connections within a 15-second deadline, i
 
 - Four fixed goroutines per worker by default; `WORKER_CONCURRENCY` accepts 1..64. No in-memory unbounded job channel.
 - Unique normalized URL records, 20-second fenced leases, three attempts, and one-second retry delay. An expired lease can be reclaimed by another process. Completed document storage and discovered links commit with the job transition.
+- Explicit generation-conditional recrawls refresh terminal URLs using the same ID and admission slot. Queued/leased work is preserved; the last successful document stays searchable through refresh or failure, with its producing generation exposed.
 - Database-coordinated reservations at least 500 ms apart for each origin across all workers. An origin means scheme, hostname and port, rather than registrable domain. Network scheduling can shift actual request-start spacing.
 - Five-second HTTP timeout; one MiB body cap; no redirects; explicit allowed origins. Crawl depth is capped at two, with at most 32 discovered links per page.
 - A persisted database-wide budget defaults to 1,000 retained URLs across every job state. Seeds and discovered links share it. Duplicates retain their IDs and consume no additional capacity. New seeds at exhaustion return HTTP 409; indexing of admitted pages still completes, with `discovery_rejected` counting distinct normalized links rejected by the budget.
@@ -45,6 +46,12 @@ API and worker startup retry database connections within a 15-second deadline, i
 - SIGTERM stops new claims and lets active work finish within its deadline. Hard failure leaves the lease for recovery; fetches can repeat, while fenced transactions prevent stale document commits.
 
 `DATABASE_URL` and comma-separated `ALLOWED_ORIGINS` are required for API/workers. Compose permits only its synthetic fixture. Origins must use canonical spelling, with no trailing slash. Changing allowed origins does not remove existing indexed documents.
+
+## Explicit refresh
+
+Read `GET /jobs/{id}` and send its current `generation` to `POST /jobs/{id}/recrawl` as `{"generation":1}` with the actual observed value. A done/failed job queues its next generation; duplicate requests for the previous generation return the same refresh. Current queued/leased work and other mismatches return 409. Completion/retry/robots-denial writes fence both generation and attempt, protecting a new attempt-one lease from an older generation's worker.
+
+`GET /documents/{id}` and search results expose the successful document's generation. Prior content remains visible until successful replacement, including after a failed or robots-denied refresh. [Full semantics, upgrade boundary and reproducible runtime check](docs/recrawl.md) describe the retained depth, normal policy/retry limits and unchanged admission accounting. Run `python scripts/recrawl_smoke.py` for the disposable two-worker scenario. There is no scheduler.
 
 ## Admission budget
 

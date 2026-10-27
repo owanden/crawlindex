@@ -1,0 +1,117 @@
+{
+  "project": "crawlindex-recrawl-b5b6c988",
+  "status": "passed",
+  "started_at": "2026-10-27T02:06:38.671090+00:00",
+  "revision": "a5f16d253403f58bbae8097f8ccc1363269a8f61",
+  "source_status": "M .github/workflows/ci.yaml\n M cmd/crawlindex/fixture.go\n M internal/crawler/api.go\n M internal/crawler/robots.go\n M internal/crawler/schema.sql\n M internal/crawler/store.go\n M internal/crawler/worker.go\n?? internal/crawler/recrawl_test.go\n?? scripts/recrawl_smoke.py",
+  "docker_version": "28.3.0",
+  "initial_job": {
+    "id": 1,
+    "generation": 1,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "initial_document": {
+    "id": 1,
+    "generation": 1,
+    "url": "http://fixture:8081/refresh",
+    "title": "Oldword",
+    "body": "Initial fixture content"
+  },
+  "concurrent_duplicates": 16,
+  "queued_job": {
+    "id": 1,
+    "generation": 2,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "queued",
+    "attempts": 0,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "queued_survived_restart": true,
+  "replaced_job": {
+    "id": 1,
+    "generation": 2,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "replaced_document": {
+    "id": 1,
+    "generation": 2,
+    "url": "http://fixture:8081/refresh",
+    "title": "Freshword",
+    "body": "Replacement fixture content"
+  },
+  "failed_job": {
+    "id": 1,
+    "generation": 3,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "failed",
+    "attempts": 3,
+    "last_error": "HTTP status 503",
+    "discovery_rejected": 0
+  },
+  "failure_survived_restart": true,
+  "robots_denied_job": {
+    "id": 1,
+    "generation": 4,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "failed",
+    "attempts": 1,
+    "last_error": "robots disallowed",
+    "discovery_rejected": 0
+  },
+  "requests_before_robots_denial": 5,
+  "recovered_job": {
+    "id": 1,
+    "generation": 5,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "recovered_document": {
+    "id": 1,
+    "generation": 5,
+    "url": "http://fixture:8081/refresh",
+    "title": "Oldword",
+    "body": "Initial fixture content"
+  },
+  "final_fixture": {
+    "mode": "first",
+    "requests": 6
+  },
+  "final_policy": {
+    "mode": "allow",
+    "page_hits": {},
+    "robots_requests": 3,
+    "wrong_agent": 0
+  },
+  "running_workers": 2,
+  "budget": {
+    "limit": 1,
+    "admitted": 1,
+    "remaining": 0
+  },
+  "owned_stack_removed": true,
+  "finished_at": "2026-10-27T02:07:43.917269+00:00"
+}

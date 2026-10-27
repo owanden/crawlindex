@@ -56,6 +56,17 @@ jobs:
           path: |
             .work/egress/report.json
             .work/egress/commands.log
+      - name: Verify explicit recrawl generations and persisted content
+        run: python3 scripts/recrawl_smoke.py --output .work/recrawl
+      - name: Preserve recrawl report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: recrawl-smoke
+          if-no-files-found: warn
+          path: |
+            .work/recrawl/report.json
+            .work/recrawl/commands.log
       - name: Stop owned stack
         if: always()
         run: docker compose --profile test down

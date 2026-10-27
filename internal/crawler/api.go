@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -84,6 +85,45 @@ func Handler(s *Store, p Policy) http.Handler {
 			return
 		}
 		write(w, 200, j)
+	})
+	mux.HandleFunc("POST /jobs/{id}/recrawl", func(w http.ResponseWriter, r *http.Request) {
+		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)
+		if err != nil || id <= 0 {
+			write(w, 400, map[string]string{"error": "invalid id"})
+			return
+		}
+		var in struct {
+			Generation int64 `json:"generation"`
+		}
+		dec := json.NewDecoder(http.MaxBytesReader(w, r.Body, 4096))
+		dec.DisallowUnknownFields()
+		if err := dec.Decode(&in); err != nil || in.Generation < 1 || in.Generation == math.MaxInt64 {
+			write(w, 400, map[string]string{"error": "expected a positive generation below 9223372036854775807"})
+			return
+		}
+		if err := dec.Decode(new(any)); err != io.EOF {
+			write(w, 400, map[string]string{"error": "expected one JSON object"})
+			return
+		}
+		current, err := s.Job(r.Context(), id)
+		if err != nil {
+			failure(w, err)
+			return
+		}
+		if _, _, err := p.Normalize(current.URL); err != nil {
+			write(w, 400, map[string]string{"error": err.Error()})
+			return
+		}
+		j, err := s.Recrawl(r.Context(), id, in.Generation)
+		if errors.Is(err, ErrRecrawlConflict) {
+			write(w, 409, map[string]string{"error": ErrRecrawlConflict.Error()})
+			return
+		}
+		if err != nil {
+			failure(w, err)
+			return
+		}
+		write(w, 202, j)
 	})
 	mux.HandleFunc("GET /documents/{id}", func(w http.ResponseWriter, r *http.Request) {
 		id, err := strconv.ParseInt(r.PathValue("id"), 10, 64)

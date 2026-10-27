@@ -4,6 +4,7 @@ import (
 	"context"
 	_ "embed"
 	"errors"
+	"math"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -15,11 +16,13 @@ var schema string
 
 var ErrLeaseLost = errors.New("lease lost")
 var ErrBudgetExceeded = errors.New("URL admission budget exhausted")
+var ErrRecrawlConflict = errors.New("recrawl requires the current terminal generation")
 
 type Store struct{ DB *pgxpool.Pool }
 
 type Job struct {
 	ID                int64  `json:"id"`
+	Generation        int64  `json:"generation"`
 	URL               string `json:"url"`
 	Origin            string `json:"origin"`
 	Depth             int    `json:"depth"`
@@ -55,10 +58,11 @@ func (s *Store) Budget(ctx context.Context) (Budget, error) {
 }
 
 type Document struct {
-	ID    int64  `json:"id"`
-	URL   string `json:"url"`
-	Title string `json:"title"`
-	Body  string `json:"body"`
+	ID         int64  `json:"id"`
+	Generation int64  `json:"generation"`
+	URL        string `json:"url"`
+	Title      string `json:"title"`
+	Body       string `json:"body"`
 }
 
 func Open(ctx context.Context, dsn string) (*Store, error) {
@@ -161,8 +165,8 @@ func (s *Store) Claim(ctx context.Context, lease, interval time.Duration, maxAtt
  SELECT id FROM jobs WHERE origin=$1 AND attempts<$3 AND
  ((state='queued' AND available_at<=now()) OR (state='leased' AND lease_until<=now()))
  ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1)
- RETURNING id,url,origin,depth,state,attempts,last_error`, origin, lease.Milliseconds(), maxAttempts).
-		Scan(&j.ID, &j.URL, &j.Origin, &j.Depth, &j.State, &j.Attempts, &j.LastError)
+ RETURNING id,url,origin,depth,state,attempts,last_error,generation`, origin, lease.Milliseconds(), maxAttempts).
+		Scan(&j.ID, &j.URL, &j.Origin, &j.Depth, &j.State, &j.Attempts, &j.LastError, &j.Generation)
 	if err != nil {
 		return Job{}, err
 	}
@@ -184,15 +188,15 @@ func (s *Store) Finish(ctx context.Context, j Job, doc Document, links []string,
 		return err
 	}
 	tag, err := tx.Exec(ctx, `UPDATE jobs SET state='done',lease_until=NULL,last_error='',updated_at=now()
- WHERE id=$1 AND attempts=$2 AND state='leased' AND lease_until>clock_timestamp()`, j.ID, j.Attempts)
+ WHERE id=$1 AND attempts=$2 AND generation=$3 AND state='leased' AND lease_until>clock_timestamp()`, j.ID, j.Attempts, j.Generation)
 	if err != nil {
 		return err
 	}
 	if tag.RowsAffected() != 1 {
 		return ErrLeaseLost
 	}
-	_, err = tx.Exec(ctx, `INSERT INTO documents(job_id,url,title,body) VALUES($1,$2,$3,$4)
- ON CONFLICT(job_id) DO UPDATE SET title=EXCLUDED.title,body=EXCLUDED.body,indexed_at=now()`, j.ID, j.URL, doc.Title, doc.Body)
+	_, err = tx.Exec(ctx, `INSERT INTO documents(job_id,url,title,body,generation) VALUES($1,$2,$3,$4,$5)
+ ON CONFLICT(job_id) DO UPDATE SET title=EXCLUDED.title,body=EXCLUDED.body,generation=EXCLUDED.generation,indexed_at=now()`, j.ID, j.URL, doc.Title, doc.Body, j.Generation)
 	if err != nil {
 		return err
 	}
@@ -224,7 +228,7 @@ func (s *Store) Finish(ctx context.Context, j Job, doc Document, links []string,
 func (s *Store) Fail(ctx context.Context, j Job, cause error, maxAttempts int, delay time.Duration) error {
 	tag, err := s.DB.Exec(ctx, `UPDATE jobs SET state=CASE WHEN attempts >= $3 THEN 'failed' ELSE 'queued' END,
  lease_until=NULL,last_error=$4,available_at=now()+$5*interval '1 millisecond',updated_at=now()
- WHERE id=$1 AND attempts=$2 AND state='leased' AND lease_until>now()`, j.ID, j.Attempts, maxAttempts, cause.Error(), delay.Milliseconds())
+ WHERE id=$1 AND attempts=$2 AND generation=$6 AND state='leased' AND lease_until>clock_timestamp()`, j.ID, j.Attempts, maxAttempts, cause.Error(), delay.Milliseconds(), j.Generation)
 	if err == nil && tag.RowsAffected() != 1 {
 		return ErrLeaseLost
 	}
@@ -233,19 +237,19 @@ func (s *Store) Fail(ctx context.Context, j Job, cause error, maxAttempts int, d
 
 func (s *Store) Job(ctx context.Context, id int64) (Job, error) {
 	var j Job
-	err := s.DB.QueryRow(ctx, `SELECT id,url,origin,depth,state,attempts,last_error,discovery_rejected FROM jobs WHERE id=$1`, id).
-		Scan(&j.ID, &j.URL, &j.Origin, &j.Depth, &j.State, &j.Attempts, &j.LastError, &j.DiscoveryRejected)
+	err := s.DB.QueryRow(ctx, `SELECT id,url,origin,depth,state,attempts,last_error,discovery_rejected,generation FROM jobs WHERE id=$1`, id).
+		Scan(&j.ID, &j.URL, &j.Origin, &j.Depth, &j.State, &j.Attempts, &j.LastError, &j.DiscoveryRejected, &j.Generation)
 	return j, err
 }
 
 func (s *Store) Document(ctx context.Context, id int64) (Document, error) {
 	var d Document
-	err := s.DB.QueryRow(ctx, `SELECT job_id,url,title,body FROM documents WHERE job_id=$1`, id).Scan(&d.ID, &d.URL, &d.Title, &d.Body)
+	err := s.DB.QueryRow(ctx, `SELECT job_id,url,title,body,generation FROM documents WHERE job_id=$1`, id).Scan(&d.ID, &d.URL, &d.Title, &d.Body, &d.Generation)
 	return d, err
 }
 
 func (s *Store) Search(ctx context.Context, q string) ([]Document, error) {
-	rows, err := s.DB.Query(ctx, `SELECT job_id,url,title,body FROM documents,
+	rows, err := s.DB.Query(ctx, `SELECT job_id,url,title,body,generation FROM documents,
  websearch_to_tsquery('english',$1) q WHERE search @@ q ORDER BY ts_rank(search,q) DESC,job_id LIMIT 20`, q)
 	if err != nil {
 		return nil, err
@@ -254,10 +258,41 @@ func (s *Store) Search(ctx context.Context, q string) ([]Document, error) {
 	out := []Document{}
 	for rows.Next() {
 		var d Document
-		if err = rows.Scan(&d.ID, &d.URL, &d.Title, &d.Body); err != nil {
+		if err = rows.Scan(&d.ID, &d.URL, &d.Title, &d.Body, &d.Generation); err != nil {
 			return nil, err
 		}
 		out = append(out, d)
 	}
 	return out, rows.Err()
+}
+
+func (s *Store) Recrawl(ctx context.Context, id, expected int64) (Job, error) {
+	if expected < 1 || expected == math.MaxInt64 {
+		return Job{}, ErrRecrawlConflict
+	}
+	tx, err := s.DB.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
+	if err != nil {
+		return Job{}, err
+	}
+	defer tx.Rollback(ctx)
+	var j Job
+	err = tx.QueryRow(ctx, `SELECT id,url,origin,depth,state,attempts,last_error,discovery_rejected,generation FROM jobs WHERE id=$1 FOR UPDATE`, id).
+		Scan(&j.ID, &j.URL, &j.Origin, &j.Depth, &j.State, &j.Attempts, &j.LastError, &j.DiscoveryRejected, &j.Generation)
+	if err != nil {
+		return Job{}, err
+	}
+	if j.Generation == expected+1 {
+		return j, tx.Commit(ctx)
+	}
+	if j.Generation != expected || (j.State != "done" && j.State != "failed") {
+		return Job{}, ErrRecrawlConflict
+	}
+	err = tx.QueryRow(ctx, `UPDATE jobs SET state='queued',generation=generation+1,attempts=0,
+ available_at=clock_timestamp(),lease_until=NULL,last_error='',discovery_rejected=0,updated_at=clock_timestamp()
+ WHERE id=$1 RETURNING generation,state,attempts,last_error,discovery_rejected`, id).
+		Scan(&j.Generation, &j.State, &j.Attempts, &j.LastError, &j.DiscoveryRejected)
+	if err != nil {
+		return Job{}, err
+	}
+	return j, tx.Commit(ctx)
 }

@@ -11,6 +11,43 @@ import (
 
 func fixture() http.Handler {
 	m := http.NewServeMux()
+	var refreshMu sync.Mutex
+	refreshMode, refreshRequests := "first", 0
+	m.HandleFunc("POST /refresh-control", func(w http.ResponseWriter, r *http.Request) {
+		var in struct {
+			Mode string `json:"mode"`
+		}
+		if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1024)).Decode(&in); err != nil || (in.Mode != "first" && in.Mode != "second" && in.Mode != "error") {
+			http.Error(w, "invalid control", 400)
+			return
+		}
+		refreshMu.Lock()
+		refreshMode = in.Mode
+		refreshMu.Unlock()
+		w.WriteHeader(204)
+	})
+	m.HandleFunc("GET /refresh-status", func(w http.ResponseWriter, r *http.Request) {
+		refreshMu.Lock()
+		defer refreshMu.Unlock()
+		w.Header().Set("Content-Type", "application/json")
+		_ = json.NewEncoder(w).Encode(map[string]any{"mode": refreshMode, "requests": refreshRequests})
+	})
+	m.HandleFunc("GET /refresh", func(w http.ResponseWriter, r *http.Request) {
+		refreshMu.Lock()
+		refreshRequests++
+		mode := refreshMode
+		refreshMu.Unlock()
+		if mode == "error" {
+			w.WriteHeader(503)
+			return
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		if mode == "first" {
+			fmt.Fprint(w, "<title>Oldword</title><p>Initial fixture content</p>")
+		} else {
+			fmt.Fprint(w, "<title>Freshword</title><p>Replacement fixture content</p>")
+		}
+	})
 	var policyMu sync.Mutex
 	mode := "allow"
 	robotsRequests, wrongAgent := 0, 0

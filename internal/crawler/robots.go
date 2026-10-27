@@ -174,7 +174,7 @@ func (s *Store) RequestSlot(ctx context.Context, origin string, interval time.Du
 
 func (s *Store) DenyRobots(ctx context.Context, j Job, reason string) error {
 	tag, err := s.DB.Exec(ctx, `UPDATE jobs SET state='failed',lease_until=NULL,last_error=$3,updated_at=clock_timestamp()
- WHERE id=$1 AND attempts=$2 AND state='leased' AND lease_until>clock_timestamp()`, j.ID, j.Attempts, reason)
+ WHERE id=$1 AND attempts=$2 AND generation=$4 AND state='leased' AND lease_until>clock_timestamp()`, j.ID, j.Attempts, reason, j.Generation)
 	if err == nil && tag.RowsAffected() != 1 {
 		return ErrLeaseLost
 	}

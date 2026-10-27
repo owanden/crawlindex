@@ -51,7 +51,7 @@ func (w Worker) loop(ctx context.Context) {
 			continue
 		}
 		workCtx, done := context.WithTimeout(context.Background(), w.Lease-time.Second)
-		slog.Info("job leased", "id", j.ID, "attempt", j.Attempts)
+		slog.Info("job leased", "id", j.ID, "generation", j.Generation, "attempt", j.Attempts)
 		var doc Document
 		var links []string
 		decision, checkErr := w.Store.CheckRobots(workCtx, w.Policy, w.Fetcher, j.URL)

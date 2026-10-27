@@ -39,3 +39,5 @@ ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_body text NOT NULL DEFAULT '
 ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_mode text NOT NULL DEFAULT 'unknown';
 ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_detail text NOT NULL DEFAULT '';
 ALTER TABLE domains ADD COLUMN IF NOT EXISTS robots_expires timestamptz NOT NULL DEFAULT '-infinity';
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS generation bigint NOT NULL DEFAULT 1 CHECK (generation > 0);
+ALTER TABLE documents ADD COLUMN IF NOT EXISTS generation bigint NOT NULL DEFAULT 1 CHECK (generation > 0);
