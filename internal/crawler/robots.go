@@ -76,6 +76,9 @@ func (f Fetcher) fetchRobots(ctx context.Context, origin string) (body, mode, de
 	req.Header.Set("User-Agent", UserAgent)
 	resp, err := f.Client.Do(req)
 	if err != nil {
+		if errors.Is(err, errEgress) {
+			return "", "error", "robots destination denied by egress policy"
+		}
 		return "", "error", "robots request failed"
 	}
 	defer resp.Body.Close()

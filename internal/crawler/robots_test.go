@@ -83,7 +83,7 @@ func TestRobotsSharedCacheAndExpiry(t *testing.T) {
 		go func() {
 			defer wg.Done()
 			<-start
-			d, e := s.CheckRobots(ctx, p, NewFetcher(time.Second), server.URL+"/private")
+			d, e := s.CheckRobots(ctx, p, testFetcher(time.Second, server.URL), server.URL+"/private")
 			if e != nil || d.Allowed || d.Temporary {
 				t.Errorf("decision %+v %v", d, e)
 			}
@@ -100,7 +100,7 @@ func TestRobotsSharedCacheAndExpiry(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer reopened.DB.Close()
-	d, err := reopened.CheckRobots(ctx, p, NewFetcher(time.Second), server.URL+"/public")
+	d, err := reopened.CheckRobots(ctx, p, testFetcher(time.Second, server.URL), server.URL+"/public")
 	if err != nil || !d.Allowed || hits.Load() != 1 {
 		t.Fatalf("persisted cache %+v %v hits=%d", d, err, hits.Load())
 	}
@@ -108,7 +108,7 @@ func TestRobotsSharedCacheAndExpiry(t *testing.T) {
 	if _, err = s.DB.Exec(ctx, `UPDATE domains SET robots_expires=clock_timestamp()-interval '1 second'`); err != nil {
 		t.Fatal(err)
 	}
-	d, err = s.CheckRobots(ctx, p, NewFetcher(time.Second), server.URL+"/private")
+	d, err = s.CheckRobots(ctx, p, testFetcher(time.Second, server.URL), server.URL+"/private")
 	if err != nil || !d.Allowed || hits.Load() != 2 {
 		t.Fatalf("expired unavailable %+v %v", d, err)
 	}
@@ -158,7 +158,7 @@ func TestRobotsFetchOutcomes(t *testing.T) {
 			}
 			p := Policy{Origins: map[string]bool{server.URL: true}}
 			for i := 0; i < 2; i++ {
-				d, err := s.CheckRobots(ctx, p, NewFetcher(100*time.Millisecond), server.URL+"/page")
+				d, err := s.CheckRobots(ctx, p, testFetcher(100*time.Millisecond, server.URL), server.URL+"/page")
 				wantAllow := mode == "404" || mode == "403"
 				if err != nil || d.Allowed != wantAllow || d.Temporary == wantAllow {
 					t.Fatalf("%s %+v %v", mode, d, err)

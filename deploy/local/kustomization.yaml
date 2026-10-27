@@ -9,6 +9,7 @@ configMapGenerator:
   - name: crawler-config
     literals:
       - ALLOWED_ORIGINS=http://fixture:8081
+      - CONTROLLED_FIXTURE_ORIGIN=http://fixture:8081
       - WORKER_CONCURRENCY=4
 secretGenerator:
   - name: crawler-db

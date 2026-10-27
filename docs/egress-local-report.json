@@ -1,0 +1,51 @@
+{
+  "project": "crawlindex-egress-ae0c06a4",
+  "status": "passed",
+  "started_at": "2026-10-27T01:02:14.954334+00:00",
+  "revision": "1377590e424953b5946e46ec3e9a590ecf96c8bc",
+  "source_status": "M .github/workflows/ci.yaml\n M cmd/crawlindex/main.go\n M compose.yaml\n M deploy/local/kustomization.yaml\n M internal/crawler/crawler_test.go\n M internal/crawler/fetch.go\n M internal/crawler/robots.go\n M internal/crawler/robots_test.go\n?? internal/crawler/egress.go\n?? internal/crawler/egress_test.go\n?? scripts/egress_smoke.py",
+  "docker_version": "28.3.0",
+  "default_denied_job": {
+    "id": 1,
+    "url": "http://fixture:8081/policy-page",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "queued",
+    "attempts": 1,
+    "last_error": "robots destination denied by egress policy",
+    "discovery_rejected": 0
+  },
+  "denied_fixture": {
+    "mode": "allow",
+    "page_hits": {},
+    "robots_requests": 0,
+    "wrong_agent": 0
+  },
+  "fixture_exception_job": {
+    "id": 1,
+    "url": "http://fixture:8081/policy-page",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 2,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "final_fixture": {
+    "mode": "allow",
+    "page_hits": {
+      "/policy-page": 1
+    },
+    "robots_requests": 1,
+    "wrong_agent": 0
+  },
+  "running_workers": 2,
+  "retry_wait_seconds": 10.453,
+  "budget": {
+    "limit": 1000,
+    "admitted": 1,
+    "remaining": 999
+  },
+  "owned_stack_removed": true,
+  "finished_at": "2026-10-27T01:02:59.398737+00:00"
+}

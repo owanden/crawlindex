@@ -20,6 +20,7 @@ services:
     environment: &config
       DATABASE_URL: postgres://crawler:local-only@db:5432/crawler?sslmode=disable
       ALLOWED_ORIGINS: http://fixture:8081
+      CONTROLLED_FIXTURE_ORIGIN: http://fixture:8081
     ports:
       - 127.0.0.1:8080:8080
     depends_on:

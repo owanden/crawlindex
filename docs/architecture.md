@@ -28,6 +28,8 @@ Migration initializes the limit to the larger of 1,000 and existing job count an
 
 ## Actual extraction and indexing
 
+Page and robots requests share a [connection-time egress boundary](egress.md): one bounded resolution per new connection, fail-closed classification of the entire answer set, then numeric dialing with the original Host/TLS identity. Controlled fixtures require an explicit exact-origin private-network exception. Redirects and proxies remain disabled; reused connections retain their originally checked destination. Static prefix policy and operating-system routing limits preclude a blanket production-security claim.
+
 The HTML parser produces plain title/body strings and absolute links. The fetcher rejects non-HTML, non-200, oversized and redirected responses. It never executes JavaScript or follows a document's base tag. Workers recheck the configured allowlist before fetching stored jobs. Extraction is intentionally small; language/encoding detection, semantic sections and binary formats are outside this slice.
 
 Generated weighted title/body vectors plus a GIN index implement [PostgreSQL full-text search](https://www.postgresql.org/docs/17/textsearch-controls.html). Queries use `websearch_to_tsquery`, with English stemming. Results include stored text so the index is inspectable. This is a document search path, not an external search-engine integration or relevance benchmark.
@@ -48,7 +50,7 @@ Cache fields live on `domains`, so no new origin can enter through policy lookup
 
 The job's origin reservation covers its initial policy fetch. An allowed page needs an additional origin slot, including warm-cache cases. This conservative scheduling can reduce crawl rate; it is not a throughput improvement or precise network-start guarantee. Default 20-second leases/five-second per-request timeouts remain; configuration validation now budgets for both policy and page timeouts. Shared cache decisions and queued availability survive database/process restart. Terminal jobs keep their existing IDs/status and indexed content is not retroactively purged when policy changes.
 
-Robots is a permission policy, not authentication or network protection. New cache rows cannot bypass URL admission, fetches cannot follow redirects off-origin, and rules never enqueue sitemaps or other targets. DNS rebinding and private/link-local destination restrictions remain a separate required milestone. Stop older worker binaries before upgrading: they do not apply these checks.
+Robots is a permission policy, not authentication or network protection. New cache rows cannot bypass URL admission, fetches cannot follow redirects off-origin, and rules never enqueue sitemaps or other targets. The shared connection-time boundary separately checks resolved destinations. Stop older worker binaries before upgrading: they do not apply these checks.
 
 ## Remaining limits
 

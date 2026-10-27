@@ -68,7 +68,7 @@ This creates a fresh, uniquely named Compose project with a two-URL cap, two wor
 
 `go test -race` in the test image exercises real PostgreSQL, HTTP extraction/search, concurrent claims, stale lease rejection, two worker loops sharing a rate gate, retries, a killed worker subprocess followed by recovery, and SIGTERM during an active fetch. [Verification](docs/verification.md) records actual local results. [Architecture](docs/architecture.md) records decisions and limits.
 
-This is a controlled-origin implementation, with no authentication, DNS rebinding defense, recrawl scheduling or production operations. The admission cap bounds retained URL count, rather than disk bytes or requests per user. Do not expose the API or point it at untrusted/public-web targets. The database and fixture are local demo services. No throughput/capacity measurement or cloud deployment is claimed.
+This is a controlled-origin implementation with a [connection-time DNS/IP boundary](docs/egress.md), but no authentication, recrawl scheduling or production operations. The admission cap bounds retained URL count, rather than disk bytes or requests per user. Do not expose the API or point it at untrusted/public-web targets. The database and fixture are local demo services. No throughput/capacity measurement or cloud deployment is claimed.
 
 [Kubernetes packaging and disposable verification](deploy/README.md) include a two-worker configuration and an isolated kind harness for real pod-loss recovery and scaling checks. Accepted execution results are recorded in [verification](docs/verification.md). [GCP deployment boundary](deploy/gcp/README.md) describes the later image/identity/database requirements; it provisions nothing. Current milestone and next action are in [STATE.md](STATE.md).
 
@@ -88,4 +88,10 @@ Policy requests use the exact allowed origin, the same no-proxy/no-redirect HTTP
 python scripts/robots_smoke.py
 ```
 
-This uses a disposable project and local fixture controls to verify denial without any page fetch/indexing, an allowed exception, shared cache reuse through restart, a 503 retry through another restart, and cached 404 handling. It removes its own stack/volume and retains a report/log under `.work`. The fixture-only `/robots-control` and `/robots-status` endpoints do not exist in the API/worker commands. Public-web crawling remains out of scope until DNS/egress safeguards are implemented.
+This uses a disposable project and local fixture controls to verify denial without any page fetch/indexing, an allowed exception, shared cache reuse through restart, a 503 retry through another restart, and cached 404 handling. It removes its own stack/volume and retains a report/log under `.work`. The fixture-only `/robots-control` and `/robots-status` endpoints do not exist in the API/worker commands. Public-web crawling remains out of scope.
+
+## Connection-time egress
+
+Both page and robots requests resolve once per new connection, reject denied or mixed destination answers and dial a checked numeric address. Host/TLS identity, certificate verification and existing request/body bounds are preserved. Private, loopback, link-local/metadata, mapped-private, translation and special-purpose destinations are denied by default. [Exact behavior and limits](docs/egress.md) include static address ranges, pooled connections and the absence of a network-layer guarantee.
+
+The local Compose/Kubernetes fixtures explicitly enable `CONTROLLED_FIXTURE_ORIGIN=http://fixture:8081`; this requires that exact origin as the sole allowed origin and permits only private fixture answers at that host/port. It is not an arbitrary local-network bypass. `python scripts/egress_smoke.py` verifies zero fixture traffic without the exception, then normal durable retry and indexing with it enabled, in an owned disposable stack.

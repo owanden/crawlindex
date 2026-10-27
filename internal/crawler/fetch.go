@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"mime"
+	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -48,8 +49,35 @@ type Fetcher struct{ Client *http.Client }
 const UserAgent = "CrawlIndex/0.1 (controlled-origin crawler)"
 
 func NewFetcher(timeout time.Duration) Fetcher {
+	return newFetcher(timeout, egressDialer{})
+}
+
+func NewFixtureFetcher(timeout time.Duration) Fetcher {
+	f := newFetcher(timeout, egressDialer{fixtureAddress: "fixture:8081", fixtureNetworks: prefixes("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "fc00::/7")})
+	f.Client.Transport = fixtureTransport{f.Client.Transport.(*http.Transport)}
+	return f
+}
+
+type fixtureTransport struct{ *http.Transport }
+
+func (t fixtureTransport) RoundTrip(r *http.Request) (*http.Response, error) {
+	if r.URL.Scheme != "http" || r.URL.Host != "fixture:8081" {
+		return nil, errEgress
+	}
+	return t.Transport.RoundTrip(r)
+}
+
+func newFetcher(timeout time.Duration, egress egressDialer) Fetcher {
+	if egress.lookup == nil {
+		egress.lookup = net.DefaultResolver.LookupNetIP
+	}
+	if egress.dial == nil {
+		egress.dial = (&net.Dialer{Timeout: timeout, KeepAlive: 30 * time.Second}).DialContext
+	}
+	egress.timeout = timeout
 	transport := http.DefaultTransport.(*http.Transport).Clone()
 	transport.Proxy = nil
+	transport.DialContext = egress.DialContext
 	return Fetcher{&http.Client{Timeout: timeout, Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}
 }
 
@@ -61,6 +89,9 @@ func (f Fetcher) Fetch(ctx context.Context, raw string) (Document, []string, err
 	req.Header.Set("User-Agent", UserAgent)
 	resp, err := f.Client.Do(req)
 	if err != nil {
+		if errors.Is(err, errEgress) {
+			return Document{}, nil, errEgress
+		}
 		return Document{}, nil, errors.New("fetch request failed")
 	}
 	defer resp.Body.Close()

@@ -59,7 +59,7 @@ func TestFetcherBoundaries(t *testing.T) {
 				}
 			}))
 			defer s.Close()
-			if _, _, err := NewFetcher(time.Second).Fetch(context.Background(), s.URL); err == nil {
+			if _, _, err := testFetcher(time.Second, s.URL).Fetch(context.Background(), s.URL); err == nil {
 				t.Fatal("accepted invalid response")
 			}
 		})
@@ -103,7 +103,7 @@ func testStore(t *testing.T) (*Store, string) {
 }
 
 func worker(s *Store, origin string) Worker {
-	return Worker{Store: s, Policy: Policy{Origins: map[string]bool{origin: true}, MaxDepth: 2}, Fetcher: NewFetcher(time.Second), Concurrency: 2, Lease: 4 * time.Second, DomainInterval: 150 * time.Millisecond, RetryDelay: 100 * time.Millisecond, MaxAttempts: 3}
+	return Worker{Store: s, Policy: Policy{Origins: map[string]bool{origin: true}, MaxDepth: 2}, Fetcher: testFetcher(time.Second, origin), Concurrency: 2, Lease: 4 * time.Second, DomainInterval: 150 * time.Millisecond, RetryDelay: 100 * time.Millisecond, MaxAttempts: 3}
 }
 
 func fixtureServer(h http.Handler) *httptest.Server {

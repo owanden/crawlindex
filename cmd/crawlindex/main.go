@@ -81,7 +81,14 @@ func run() error {
 			return err
 		}
 	}
-	w := crawler.Worker{Store: s, Policy: p, Fetcher: crawler.NewFetcher(5 * time.Second), Concurrency: concurrency, Lease: 20 * time.Second, DomainInterval: 500 * time.Millisecond, RetryDelay: time.Second, MaxAttempts: 3}
+	fetcher := crawler.NewFetcher(5 * time.Second)
+	if fixture := os.Getenv("CONTROLLED_FIXTURE_ORIGIN"); fixture != "" {
+		if fixture != "http://fixture:8081" || !p.Origins[fixture] || len(p.Origins) != 1 {
+			return errors.New("CONTROLLED_FIXTURE_ORIGIN requires http://fixture:8081 as the only allowed origin")
+		}
+		fetcher = crawler.NewFixtureFetcher(5 * time.Second)
+	}
+	w := crawler.Worker{Store: s, Policy: p, Fetcher: fetcher, Concurrency: concurrency, Lease: 20 * time.Second, DomainInterval: 500 * time.Millisecond, RetryDelay: time.Second, MaxAttempts: 3}
 	return w.Run(ctx)
 }
 
