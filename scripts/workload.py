@@ -228,8 +228,10 @@ def main():
         except Exception as error:
             report["status"] = "failed"; report["cleanup_error"] = str(error)
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
-        (output / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
-        (output / "observations.json").write_text(json.dumps(observations, indent=2) + "\n", encoding="utf-8")
+        raw_bytes = (json.dumps(observations, indent=2) + "\n").encode("utf-8")
+        report["observations_sha256"] = hashlib.sha256(raw_bytes).hexdigest()
+        (output / "report.json").write_bytes((json.dumps(report, indent=2) + "\n").encode("utf-8"))
+        (output / "observations.json").write_bytes(raw_bytes)
         log.close()
     print(json.dumps({k: v for k, v in report.items() if k in ("status", "error", "summary", "revision")}, indent=2))
     return 0 if report["status"] == "passed" else 1
