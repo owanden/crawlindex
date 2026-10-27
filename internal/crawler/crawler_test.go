@@ -295,9 +295,17 @@ func TestTwoWorkersCoordinateDomainAndRetries(t *testing.T) {
 	startWorker(t, w)
 	startWorker(t, w)
 	waitFor(t, func() bool {
-		failed, e := s.Job(ctx, ids["/fail"])
-		retried, f := s.Job(ctx, ids["/flaky"])
-		return e == nil && f == nil && failed.State == "failed" && retried.State == "done"
+		for path, id := range ids {
+			j, err := s.Job(ctx, id)
+			want := "done"
+			if path == "/fail" {
+				want = "failed"
+			}
+			if err != nil || j.State != want {
+				return false
+			}
+		}
+		return true
 	})
 	j, err := s.Job(ctx, ids["/flaky"])
 	if err != nil || j.State != "done" || j.Attempts != 2 {
