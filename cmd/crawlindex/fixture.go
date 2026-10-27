@@ -11,6 +11,7 @@ import (
 
 func fixture() http.Handler {
 	m := http.NewServeMux()
+	workloadFixture(m)
 	var refreshMu sync.Mutex
 	refreshMode, refreshRequests := "first", 0
 	m.HandleFunc("POST /refresh-control", func(w http.ResponseWriter, r *http.Request) {

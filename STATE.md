@@ -1,6 +1,6 @@
 # Project state
 
-Updated October 26, 2026.
+Updated October 27, 2026.
 
 Initial implementation complete: Go API and fixed-goroutine workers, PostgreSQL leases/deduplication/retries, bounded HTML extraction, stored documents, weighted full-text search, synthetic fixture and Docker Compose. Static checks and local integration race checks passed against PostgreSQL 17.6, including killed-process recovery, terminal lease expiry and SIGTERM drain. Packaged API, fixture and two worker containers ran successfully; stored documents/search survived simultaneous database/API/worker restart. Results and the corrected initial restart failure are in docs/verification.md.
 
@@ -14,6 +14,8 @@ Connection-time egress milestone: page and robots requests share one-resolution 
 
 Explicit recrawl milestone: generation-conditional terminal-job refresh, idempotent concurrent duplicates and conflicts for current queued/leased work. Worker writes fence generation and attempt; prior indexed content remains visible until successful replacement and exposes its producing generation. The same URL/ID/depth/admission slot is retained. Real PostgreSQL/race and a two-worker runtime scenario verify content/search replacement, concurrent requests, stale writes, queued/failed restart persistence, robots/egress checks and a full one-URL budget. [Semantics and upgrade limits](docs/recrawl.md), [verification](docs/verification.md) and the [local report](docs/recrawl-local-report.json) retain actual evidence. CI retains the recrawl report/log alongside the four existing artifacts.
 
-Next useful milestone: a reproducible, measured controlled-fixture crawl/index workload, with explicit dataset/worker configuration, elapsed-time and resource/throughput observations and honest local-environment limits. Favor measurement over additional features. Public-web crawling stays out of scope pending a separate operational plan, API access controls and deployment egress policy. GCP remains undeployed.
+Measured workload: three fresh 24-page/393,216-byte controlled-corpus runs with two workers/four goroutines each, one origin, unchanged rate limits and inspected fixed CPU/memory/image configuration. All 72 documents and 72 unique-token searches verified, with raw progress and sampled resource observations retained. Local min/median/max observed elapsed 24.407/24.484/24.531 s (median 0.980 pages/s), under a policy-imposed approximately 1 page/s ceiling; this is not maximum capacity or a worker-scaling claim. [Method/results/uncertainty](docs/workload.md) and [local report/raw observations](docs/measurements/workload-local/report.json) preserve source/environment details and the rejected preliminary-token run. CI repeats the same three-run workload and retains a sixth runtime artifact alongside existing regressions.
+
+Next useful step: an inspectable end-to-end demo/architecture walkthrough using the verified workload and failure-recovery evidence. No further tuning/scaling claim without a concrete workload question and a separately bounded experiment with enough independent origins. Public-web crawling stays out of scope pending an operational plan, API access controls and deployment egress policy. GCP remains undeployed.
 
 Publication boundary: this standalone repository only. Local environment files and temporary outputs are excluded.
