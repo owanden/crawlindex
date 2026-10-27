@@ -1,0 +1,29 @@
+CrawlIndex reviewer demo
+Source: 131f1f005e2ed2a4db4cd48939d4203764d4bf68
+Source status: modified; exact status retained in report.json
+Two independent disposable stacks: corpus and refresh. Job IDs are local to each database.
+
+1. Submit and inspect the controlled corpus
+POST /urls -> root job 1; 24 pages, 393216 HTML bytes, one origin, two workers x four goroutines
+GET /documents/{id} -> excerpt/hash summary (full body verified): {"id": 1, "url": "http://fixture:8081/workload/pages/000", "title": "Workload pageword000qx", "generation": 1, "body_excerpt": "corpusmarker pageword000qx page page page page page page page page page page page page page page page page page page page page page page page payload payload pa", "text_sha256": "64beb4bff3a062e28e294de988b2ac1c9d7d4377c32331b46314d1907c9b3ba4"}
+GET /search?q=pageword000qx -> first-match fields: {"id": 1, "url": "http://fixture:8081/workload/pages/000", "title": "Workload pageword000qx", "generation": 1}
+Checked: all 24 document text hashes and 24 unique-token searches; hidden script absent; common query capped at 20.
+Observed corpus window: 24.453s; one demo repetition, policy-limited, not a capacity measurement.
+
+2. In a separate fresh stack, refresh changed content using one URL and admission slot
+Refresh fixture URL: http://fixture:8081/refresh
+Initial refresh fixture: generation 1, title Oldword
+POST /jobs/1/recrawl with generation 1 -> generation 2, title Freshword
+GET /documents/{id} after refresh -> {"id": 1, "generation": 2, "url": "http://fixture:8081/refresh", "title": "Freshword", "body": "Replacement fixture content"}
+16 concurrent requests coalesced; old search term disappeared and the new term returned one document.
+Queued generation 2 and its prior document survived a database/API restart before workers resumed.
+
+3. Observe failure, retained content and explicit recovery
+Generation 3 -> failed after 3 HTTP 503 attempts.
+Generation 2 document Freshword remained searchable; terminal failure survived database/API restart.
+Generation 4 was robots-denied at attempt 1 with zero additional page fetches; prior indexed content remained.
+A later explicit refresh -> generation 5, done, attempt 1, title Oldword.
+Admission remained limit=1, admitted=1, remaining=0 across all five refresh generations.
+
+Both owned disposable stacks and their volumes were removed. Existing demo data was not reset.
+For actual killed-process/pod lease recovery, policy/egress bounds and repeated measurements, see docs/walkthrough.md.

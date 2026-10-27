@@ -205,7 +205,7 @@ def main():
                 report["status"] = "failed"
                 report["cleanup_error"] = str(error)
         report["finished_at"] = datetime.now(timezone.utc).isoformat()
-        (output / "report.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        (output / "report.json").write_bytes((json.dumps(report, indent=2) + "\n").encode("utf-8"))
         log.close()
     print(json.dumps(report, indent=2))
     return 0 if report["status"] == "passed" else 1

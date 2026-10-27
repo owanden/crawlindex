@@ -2,6 +2,8 @@
 
 Run `python scripts/workload.py` from the repository. Docker Compose and Python 3 are required. The harness creates a unique project, builds the runtime once, resolves runtime/PostgreSQL images to local content-addressed IDs, then performs three repetitions with fresh containers, database volume, queue, documents and robots cache. It removes only its owned stack/volume after each run. Images, host/VM filesystem caches and other host activity are not reset. No crawler behavior or rate is changed for this experiment.
 
+The default remains three repetitions. `--repeats 1` is available for the [reviewer demonstration](walkthrough.md); its report labels the run's purpose and does not represent the repeated measurement series. New raw document records include a bounded actual body excerpt and first-match API fields alongside the existing full-text checksum, making the extraction/search result inspectable without copying a full 16 KiB body into a transcript. These additions occur after the primary timing window. Previously committed observations retain their original schema and source boundary.
+
 ## Fixed experiment
 
 | Item | Setting |

@@ -1,0 +1,409 @@
+{
+  "project": "crawlindex-workload-aa40decf",
+  "status": "passed",
+  "started_at": "2026-10-27T14:04:58.045358+00:00",
+  "runs": [
+    {
+      "trial": 1,
+      "status": "passed",
+      "containers": [
+        {
+          "name": "/crawlindex-workload-aa40decf-api-1",
+          "service": "api",
+          "number": "1",
+          "image": "sha256:6cb6567811459e02c8a61e4b177a184c529fe36f600e57a35535fb89088aaab8",
+          "nano_cpus": 500000000,
+          "memory": 134217728,
+          "memory_swap": 134217728,
+          "oom_killed": false,
+          "restarts": 0
+        },
+        {
+          "name": "/crawlindex-workload-aa40decf-db-1",
+          "service": "db",
+          "number": "1",
+          "image": "sha256:f3bd19c606e442c3d7bdfa8002e03fe260a1023351e0ea4598032022b68dd6e3",
+          "nano_cpus": 1000000000,
+          "memory": 536870912,
+          "memory_swap": 536870912,
+          "oom_killed": false,
+          "restarts": 0
+        },
+        {
+          "name": "/crawlindex-workload-aa40decf-fixture-1",
+          "service": "fixture",
+          "number": "1",
+          "image": "sha256:6cb6567811459e02c8a61e4b177a184c529fe36f600e57a35535fb89088aaab8",
+          "nano_cpus": 500000000,
+          "memory": 134217728,
+          "memory_swap": 134217728,
+          "oom_killed": false,
+          "restarts": 0
+        },
+        {
+          "name": "/crawlindex-workload-aa40decf-worker-1",
+          "service": "worker",
+          "number": "1",
+          "image": "sha256:6cb6567811459e02c8a61e4b177a184c529fe36f600e57a35535fb89088aaab8",
+          "nano_cpus": 500000000,
+          "memory": 134217728,
+          "memory_swap": 134217728,
+          "oom_killed": false,
+          "restarts": 0
+        },
+        {
+          "name": "/crawlindex-workload-aa40decf-worker-2",
+          "service": "worker",
+          "number": "2",
+          "image": "sha256:6cb6567811459e02c8a61e4b177a184c529fe36f600e57a35535fb89088aaab8",
+          "nano_cpus": 500000000,
+          "memory": 134217728,
+          "memory_swap": 134217728,
+          "oom_killed": false,
+          "restarts": 0
+        }
+      ],
+      "submission_ack_seconds": 0.0470000000204891,
+      "seed_id": 1,
+      "observed_elapsed_seconds": 24.45300000021234,
+      "completion_bracket_seconds": [
+        20.95300000021234,
+        24.45300000021234
+      ],
+      "pages_per_second": 0.9814746656766692,
+      "html_bytes_per_second": 16080.480922446548,
+      "max_poll_gap_seconds": 3.1090000001713634,
+      "verified_documents": 24,
+      "verified_unique_searches": 24,
+      "failed_jobs": 0,
+      "page_attempts": 24,
+      "fixture": {
+        "html_bytes": 393216,
+        "page_hits": {
+          "/workload/pages/000": 1,
+          "/workload/pages/001": 1,
+          "/workload/pages/002": 1,
+          "/workload/pages/003": 1,
+          "/workload/pages/004": 1,
+          "/workload/pages/005": 1,
+          "/workload/pages/006": 1,
+          "/workload/pages/007": 1,
+          "/workload/pages/008": 1,
+          "/workload/pages/009": 1,
+          "/workload/pages/010": 1,
+          "/workload/pages/011": 1,
+          "/workload/pages/012": 1,
+          "/workload/pages/013": 1,
+          "/workload/pages/014": 1,
+          "/workload/pages/015": 1,
+          "/workload/pages/016": 1,
+          "/workload/pages/017": 1,
+          "/workload/pages/018": 1,
+          "/workload/pages/019": 1,
+          "/workload/pages/020": 1,
+          "/workload/pages/021": 1,
+          "/workload/pages/022": 1,
+          "/workload/pages/023": 1
+        },
+        "wrong_agent": 0
+      },
+      "policy_requests": 1,
+      "verification_seconds": 0.7349999998696148,
+      "resource_sample_count": 4,
+      "resource_maxima": {
+        "api-1": {
+          "sampled_max_cli_cpu_percent": 0,
+          "sampled_max_cli_memory_bytes": 5116002
+        },
+        "db-1": {
+          "sampled_max_cli_cpu_percent": 8.35,
+          "sampled_max_cli_memory_bytes": 91205140
+        },
+        "fixture-1": {
+          "sampled_max_cli_cpu_percent": 0.04,
+          "sampled_max_cli_memory_bytes": 9838789
+        },
+        "worker-1": {
+          "sampled_max_cli_cpu_percent": 4.48,
+          "sampled_max_cli_memory_bytes": 8208253
+        },
+        "worker-2": {
+          "sampled_max_cli_cpu_percent": 3.95,
+          "sampled_max_cli_memory_bytes": 10506732
+        }
+      },
+      "owned_stack_removed": true
+    }
+  ],
+  "revision": "131f1f005e2ed2a4db4cd48939d4203764d4bf68",
+  "source_status": "M .github/workflows/ci.yaml\n M scripts/recrawl_smoke.py\n M scripts/workload.py\n?? scripts/reviewer_demo.py",
+  "build_files_sha256": {
+    "Dockerfile": "f9a95187a24af1be0dd2678816c12d3b02430957f7b9a07d236e143356ab28c7",
+    "go.mod": "2df8fed1d7cf9da607b1bc99a8644ab5625196429577fb23a563b89730ecbe47",
+    "go.sum": "4f2a57ea1b2ae8a9753155f11143c4cd51781825f631fce487fd0d90049606a1"
+  },
+  "build_images": [
+    "FROM golang:1.26.8-bookworm AS source",
+    "FROM source AS test",
+    "FROM source AS build",
+    "FROM gcr.io/distroless/static-debian12:nonroot AS runtime"
+  ],
+  "engine": {
+    "cpus": 16,
+    "background_running_containers": 0,
+    "memory_bytes": 16733515776,
+    "os": "linux",
+    "architecture": "x86_64",
+    "operating_system": "Docker Desktop",
+    "kernel": "5.15.167.4-microsoft-standard-WSL2",
+    "server": "28.3.0",
+    "storage": "overlayfs",
+    "cgroup_version": "1"
+  },
+  "client": {
+    "system": "Windows",
+    "release": "11",
+    "machine": "AMD64",
+    "python": "3.12.8"
+  },
+  "settings": {
+    "repeats": 1,
+    "purpose": "reviewer demonstration",
+    "workers": 2,
+    "concurrency_per_worker": 4,
+    "origins": 1,
+    "domain_interval_ms": 500,
+    "http_timeout_seconds": 5,
+    "lease_seconds": 20,
+    "poll_target_seconds": 1,
+    "resource_sample_target_seconds": 4,
+    "settle_seconds": 2,
+    "request_slots_per_job": 2,
+    "steady_origin_page_ceiling_per_second": 1,
+    "measurement": "before root POST through first SQL observation of all 24 done/documents"
+  },
+  "runtime_image": {
+    "id": "sha256:6cb6567811459e02c8a61e4b177a184c529fe36f600e57a35535fb89088aaab8",
+    "digests": [
+      "crawlindex-workload-aa40decf@sha256:6cb6567811459e02c8a61e4b177a184c529fe36f600e57a35535fb89088aaab8"
+    ],
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "database_image": {
+    "id": "sha256:f3bd19c606e442c3d7bdfa8002e03fe260a1023351e0ea4598032022b68dd6e3",
+    "digests": [
+      "postgres@sha256:f3bd19c606e442c3d7bdfa8002e03fe260a1023351e0ea4598032022b68dd6e3"
+    ],
+    "os": "linux",
+    "architecture": "amd64"
+  },
+  "corpus": {
+    "corpus_sha256": "c3b6acb5f485320c5eb6ca23d031c13b6c09287610072f4ba80bde43a5b9e9b2",
+    "html_bytes": 393216,
+    "origins": 1,
+    "pages": [
+      {
+        "path": "/workload/pages/000",
+        "title": "Workload pageword000qx",
+        "token": "pageword000qx",
+        "bytes": 16384,
+        "html_sha256": "f675ee7a7caffacceaaa88e2e19b9e37a5c4f7f5075cde8a26c6cf3ac415932f",
+        "text_sha256": "64beb4bff3a062e28e294de988b2ac1c9d7d4377c32331b46314d1907c9b3ba4"
+      },
+      {
+        "path": "/workload/pages/001",
+        "title": "Workload pageword001qx",
+        "token": "pageword001qx",
+        "bytes": 16384,
+        "html_sha256": "221bc7b25625abee98bb3132b5f4f1072df1d1d25f1b3ef762316b923d4fcb85",
+        "text_sha256": "e0575bd5e9362daddb0712e072048a62610a5465b15231f3c458f7f0b4752517"
+      },
+      {
+        "path": "/workload/pages/002",
+        "title": "Workload pageword002qx",
+        "token": "pageword002qx",
+        "bytes": 16384,
+        "html_sha256": "3aede9b973c0cfc7f8c91b5bf5e23228cd69da2b884fac1c228128ac56353b07",
+        "text_sha256": "fdb68f230aa897d0f3b65efcf236ba1550a64340839781be2c71e7a4b6f0df61"
+      },
+      {
+        "path": "/workload/pages/003",
+        "title": "Workload pageword003qx",
+        "token": "pageword003qx",
+        "bytes": 16384,
+        "html_sha256": "00079665a658846477a3b66832c18df690492ca22f9e877af1fcfe9d0541fe67",
+        "text_sha256": "a5725f0c4d2922442d3482ea1125e34db8c7da031c7057dd9d429b3ff793cd33"
+      },
+      {
+        "path": "/workload/pages/004",
+        "title": "Workload pageword004qx",
+        "token": "pageword004qx",
+        "bytes": 16384,
+        "html_sha256": "39a0a4d4cd532282775a516ffac315e4fba37f6b26b1cccf8663d3c3726442a2",
+        "text_sha256": "0f1f5e54b056298e2221cd4b42ee09a94606317d1f465b08252d5744c8120358"
+      },
+      {
+        "path": "/workload/pages/005",
+        "title": "Workload pageword005qx",
+        "token": "pageword005qx",
+        "bytes": 16384,
+        "html_sha256": "b0aa4387a99b3bc2ed76131e4cfc6088520ba81929dd7ec2a1db396441218eaa",
+        "text_sha256": "967075972338f2c5a94dfc9d2a9209d6f923d97d878dca171cbcd9fd70fb823b"
+      },
+      {
+        "path": "/workload/pages/006",
+        "title": "Workload pageword006qx",
+        "token": "pageword006qx",
+        "bytes": 16384,
+        "html_sha256": "bf8e5038d4bba04af28da007499b3307c63f72c375d3bcadf3bf21e4b069a156",
+        "text_sha256": "eb337c8a62f7a1efb66d1817565ff1effccea7be6d93ad225d720eed663e2653"
+      },
+      {
+        "path": "/workload/pages/007",
+        "title": "Workload pageword007qx",
+        "token": "pageword007qx",
+        "bytes": 16384,
+        "html_sha256": "0edca320f675046b3b6f16d2b7f87f5f2f56c60a8367946feca5e24199e2a046",
+        "text_sha256": "0915bfb4d5e976414225525db37fc14c7b5868bcbeec6a6a420b29e428ad4c85"
+      },
+      {
+        "path": "/workload/pages/008",
+        "title": "Workload pageword008qx",
+        "token": "pageword008qx",
+        "bytes": 16384,
+        "html_sha256": "7ccc26db0cfdfbe89965749b0fc1112788c436b4cf4d5ec3ee39cb7a870594f0",
+        "text_sha256": "7f57b9dba533786dcba7529f5437443ca843b7bdfde12eb9e7d4a9e1d0dc24fc"
+      },
+      {
+        "path": "/workload/pages/009",
+        "title": "Workload pageword009qx",
+        "token": "pageword009qx",
+        "bytes": 16384,
+        "html_sha256": "523c454317d19df4a7ae9b33af29d9afd67042a628a6f4c5c2d5bf4ee1be9c8c",
+        "text_sha256": "30ddc8a8dcbd0232beb2eb77429493582ac54bc025871d5409f6646d5826e691"
+      },
+      {
+        "path": "/workload/pages/010",
+        "title": "Workload pageword010qx",
+        "token": "pageword010qx",
+        "bytes": 16384,
+        "html_sha256": "92a0c581350325ed7c9e17aa5a434444e8d254ed9e42fe269e17166d5eb52fd5",
+        "text_sha256": "d50caae3fa9c3cedae09a0e5cfe922b2892e3f27ce9958471077a4b17a659ff5"
+      },
+      {
+        "path": "/workload/pages/011",
+        "title": "Workload pageword011qx",
+        "token": "pageword011qx",
+        "bytes": 16384,
+        "html_sha256": "b4797ab0416f813461ea749db02d0c405e3e9bf04c175eb55137758710c73d87",
+        "text_sha256": "94ff454083ee8d308d6b3198727dfd71ed45304d18bf6ec53a0ee1b3116f5a8e"
+      },
+      {
+        "path": "/workload/pages/012",
+        "title": "Workload pageword012qx",
+        "token": "pageword012qx",
+        "bytes": 16384,
+        "html_sha256": "7ee298685cb897d17726acf0203402ff2ee5443b75b099a7387990cc20fd23d5",
+        "text_sha256": "fa469026a1368216b71d076c3c454becfa4fc1c05b7a47d2a0e99de328ddb5fe"
+      },
+      {
+        "path": "/workload/pages/013",
+        "title": "Workload pageword013qx",
+        "token": "pageword013qx",
+        "bytes": 16384,
+        "html_sha256": "ebac050ed25e0b7af9c9ec7d443d936d466a02206746d2fa15495eead95de2ee",
+        "text_sha256": "4feb72682e06b63e6c6c39f5a476aee2a2aed58525f85e640c219dc566dcebbb"
+      },
+      {
+        "path": "/workload/pages/014",
+        "title": "Workload pageword014qx",
+        "token": "pageword014qx",
+        "bytes": 16384,
+        "html_sha256": "9a0ce0271a8fc33a2cf79aa9415703996c00d876634c74ea08ed9a075d5eb5fc",
+        "text_sha256": "bf6f97f4c1a1d565bc57119931772845791d048f1b8d41773b6a3283bfcc911c"
+      },
+      {
+        "path": "/workload/pages/015",
+        "title": "Workload pageword015qx",
+        "token": "pageword015qx",
+        "bytes": 16384,
+        "html_sha256": "d8815052178b217f264de6696489b6ee7c09fb9e4f2632dc39fd9a0baace69dc",
+        "text_sha256": "4b9eef008a4ba8acf2f0de893662e2cb24bf0525c23baf56adf8a3c53d8b4bea"
+      },
+      {
+        "path": "/workload/pages/016",
+        "title": "Workload pageword016qx",
+        "token": "pageword016qx",
+        "bytes": 16384,
+        "html_sha256": "4fd8b04117bbd5f30737c7ee211eb1b0fa3a20c0e60c65254ac5fede8c5442d5",
+        "text_sha256": "5b9ea1033ad9709401696af741a2dda50a26c2cd89939bbba15a2968aad0f5ab"
+      },
+      {
+        "path": "/workload/pages/017",
+        "title": "Workload pageword017qx",
+        "token": "pageword017qx",
+        "bytes": 16384,
+        "html_sha256": "b44a23dd49621e74b65b3c6568c7d09525e87facd0db31798c64ea4f7c374ee5",
+        "text_sha256": "2e8b889ad6a0645be83a3a984ada589ce8c48379230a6200df897ef28ad24054"
+      },
+      {
+        "path": "/workload/pages/018",
+        "title": "Workload pageword018qx",
+        "token": "pageword018qx",
+        "bytes": 16384,
+        "html_sha256": "13c0f71e7d37255f30d462edd0b9e7d3ac358aa7a03b5f9063d12925081ca61c",
+        "text_sha256": "ecdeb8806bda30c5b4701977ab4a30afd2e9cbe77a9a94867221a06d626ce4b6"
+      },
+      {
+        "path": "/workload/pages/019",
+        "title": "Workload pageword019qx",
+        "token": "pageword019qx",
+        "bytes": 16384,
+        "html_sha256": "0467bb07a9082d7d92f32595aaf5daf8913bee615fc87bf53636014e6b458d01",
+        "text_sha256": "28d015f9944f67a4651900b0d630cee4e363d07a6a123f454364de1b4a3da466"
+      },
+      {
+        "path": "/workload/pages/020",
+        "title": "Workload pageword020qx",
+        "token": "pageword020qx",
+        "bytes": 16384,
+        "html_sha256": "a5dea0c58beaffbd2778bc2f505a75092f8fb187819481a9e4af7460a951bfdb",
+        "text_sha256": "1f6656dfde902559dfd3f4966132f7f19aa35bcfab11f5a5a8d79e8f923f05b7"
+      },
+      {
+        "path": "/workload/pages/021",
+        "title": "Workload pageword021qx",
+        "token": "pageword021qx",
+        "bytes": 16384,
+        "html_sha256": "772c8cae8b386947c2bd4150cf9cb9f7c099a200515d40ad9350a11e781f9370",
+        "text_sha256": "5ac6526dd69a851d3685b190e317049448b5854abeee14bc446e112f5ef5383d"
+      },
+      {
+        "path": "/workload/pages/022",
+        "title": "Workload pageword022qx",
+        "token": "pageword022qx",
+        "bytes": 16384,
+        "html_sha256": "b9b2f3cb8c212742ad0a3c5ee3bffe9881bfbf731d9f7368bcc5ceb5c32b7f9a",
+        "text_sha256": "b076d53b5dd07406fcf5f8ba40e8a90d1bfdf02ee8d684a82b52dc545e4d9d3f"
+      },
+      {
+        "path": "/workload/pages/023",
+        "title": "Workload pageword023qx",
+        "token": "pageword023qx",
+        "bytes": 16384,
+        "html_sha256": "baac84d4b35bffbedb59a46a93f93bc9401b0aa874b4e47d61e37828a576f56d",
+        "text_sha256": "4bde716e17b0af6d61ea75e76fc59d9fed00fb84590b9ccb25bc4c0338de2f62"
+      }
+    ],
+    "version": 1
+  },
+  "summary": {
+    "elapsed_min": 24.45300000021234,
+    "elapsed_median": 24.45300000021234,
+    "elapsed_max": 24.45300000021234,
+    "pages_per_second_median": 0.9814746656766692
+  },
+  "finished_at": "2026-10-27T14:05:49.791375+00:00",
+  "observations_sha256": "ed9b1ac925505f8c295e5df2257e29f815cf4abcdb979a2bb5c3b99cc557a1e5"
+}

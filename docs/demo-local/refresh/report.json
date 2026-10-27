@@ -1,0 +1,117 @@
+{
+  "project": "crawlindex-recrawl-0b845b99",
+  "status": "passed",
+  "started_at": "2026-10-27T14:05:49.962350+00:00",
+  "revision": "131f1f005e2ed2a4db4cd48939d4203764d4bf68",
+  "source_status": "M .github/workflows/ci.yaml\n M scripts/recrawl_smoke.py\n M scripts/workload.py\n?? scripts/reviewer_demo.py",
+  "docker_version": "28.3.0",
+  "initial_job": {
+    "id": 1,
+    "generation": 1,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "initial_document": {
+    "id": 1,
+    "generation": 1,
+    "url": "http://fixture:8081/refresh",
+    "title": "Oldword",
+    "body": "Initial fixture content"
+  },
+  "concurrent_duplicates": 16,
+  "queued_job": {
+    "id": 1,
+    "generation": 2,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "queued",
+    "attempts": 0,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "queued_survived_restart": true,
+  "replaced_job": {
+    "id": 1,
+    "generation": 2,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "replaced_document": {
+    "id": 1,
+    "generation": 2,
+    "url": "http://fixture:8081/refresh",
+    "title": "Freshword",
+    "body": "Replacement fixture content"
+  },
+  "failed_job": {
+    "id": 1,
+    "generation": 3,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "failed",
+    "attempts": 3,
+    "last_error": "HTTP status 503",
+    "discovery_rejected": 0
+  },
+  "failure_survived_restart": true,
+  "robots_denied_job": {
+    "id": 1,
+    "generation": 4,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "failed",
+    "attempts": 1,
+    "last_error": "robots disallowed",
+    "discovery_rejected": 0
+  },
+  "requests_before_robots_denial": 5,
+  "recovered_job": {
+    "id": 1,
+    "generation": 5,
+    "url": "http://fixture:8081/refresh",
+    "origin": "http://fixture:8081",
+    "depth": 0,
+    "state": "done",
+    "attempts": 1,
+    "last_error": "",
+    "discovery_rejected": 0
+  },
+  "recovered_document": {
+    "id": 1,
+    "generation": 5,
+    "url": "http://fixture:8081/refresh",
+    "title": "Oldword",
+    "body": "Initial fixture content"
+  },
+  "final_fixture": {
+    "mode": "first",
+    "requests": 6
+  },
+  "final_policy": {
+    "mode": "allow",
+    "page_hits": {},
+    "robots_requests": 3,
+    "wrong_agent": 0
+  },
+  "running_workers": 2,
+  "budget": {
+    "limit": 1,
+    "admitted": 1,
+    "remaining": 0
+  },
+  "owned_stack_removed": true,
+  "finished_at": "2026-10-27T14:06:21.481613+00:00"
+}

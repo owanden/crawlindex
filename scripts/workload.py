@@ -26,7 +26,10 @@ def memory_bytes(value):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", default=".work/workload-" + uuid.uuid4().hex[:8])
-    output = Path(parser.parse_args().output).resolve()
+    parser.add_argument("--repeats", type=int, choices=(1, 3), default=REPEATS)
+    args = parser.parse_args()
+    repeats = args.repeats
+    output = Path(args.output).resolve()
     output.mkdir(parents=True, exist_ok=False)
     name = "crawlindex-workload-" + uuid.uuid4().hex[:8]
     config_path = output / "compose.json"
@@ -89,7 +92,7 @@ def main():
         report["engine"] = json.loads(run("docker", "info", "--format", info_format))
         assert report["engine"]["os"] == "linux"
         report["client"] = {"system": platform.system(), "release": platform.release(), "machine": platform.machine(), "python": platform.python_version()}
-        report["settings"] = {"repeats": REPEATS, "workers": 2, "concurrency_per_worker": 4, "origins": 1,
+        report["settings"] = {"repeats": repeats, "purpose": "reviewer demonstration" if repeats == 1 else "three-repetition measurement", "workers": 2, "concurrency_per_worker": 4, "origins": 1,
                               "domain_interval_ms": 500, "http_timeout_seconds": 5, "lease_seconds": 20,
                               "poll_target_seconds": 1, "resource_sample_target_seconds": 4, "settle_seconds": 2,
                               "request_slots_per_job": 2, "steady_origin_page_ceiling_per_second": 1,
@@ -117,8 +120,8 @@ def main():
             value["image"] = report["database_image" if service == "db" else "runtime_image"]["id"]
             value.pop("build", None)
         config_path.write_text(json.dumps(config), encoding="utf-8")
-        for trial in range(1, REPEATS + 1):
-            print(f"Workload repetition {trial}/{REPEATS}", flush=True)
+        for trial in range(1, repeats + 1):
+            print(f"Workload repetition {trial}/{repeats}", flush=True)
             result = {"trial": trial, "status": "running"}
             raw = {"trial": trial, "progress": [], "resources": [], "documents": []}
             report["runs"].append(result); observations.append(raw)
@@ -190,7 +193,8 @@ def main():
                 assert code == 200 and doc["title"] == p["title"] and doc["url"] == j["url"] and doc["generation"] == 1 and text_hash == p["text_sha256"], ("document mismatch", j["url"], text_hash, p["text_sha256"])
                 code, matches = request(base, "/search?q=" + p["token"])
                 assert code == 200 and len(matches) == 1 and matches[0]["id"] == j["id"] and matches[0]["generation"] == 1, ("unique search mismatch", p["token"], code, matches)
-                raw["documents"].append({**j, "title": doc["title"], "text_sha256": text_hash, "body_bytes": len(doc["body"].encode())})
+                raw["documents"].append({**j, "title": doc["title"], "text_sha256": text_hash, "body_bytes": len(doc["body"].encode()),
+                                         "body_excerpt": doc["body"][:160], "search_match": {k: matches[0][k] for k in ("id", "url", "title", "generation")}})
             assert request(base, "/search?q=hiddenworkloadmarker")[1] == []
             assert len(request(base, "/search?q=corpusmarker")[1]) == 20
             hits = request(fixture, "/workload/status")[1]

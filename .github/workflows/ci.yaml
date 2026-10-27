@@ -87,6 +87,27 @@ jobs:
             .work/workload/report.json
             .work/workload/observations.json
             .work/workload/commands.log
+  reviewer-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run reviewer walkthrough against disposable fixtures
+        run: python3 scripts/reviewer_demo.py --output .work/reviewer
+      - name: Preserve real walkthrough output and underlying evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewer-demo
+          if-no-files-found: warn
+          path: |
+            .work/reviewer/report.json
+            .work/reviewer/transcript.txt
+            .work/reviewer/corpus/report.json
+            .work/reviewer/corpus/observations.json
+            .work/reviewer/corpus/commands.log
+            .work/reviewer/refresh/report.json
+            .work/reviewer/refresh/commands.log
   kubernetes:
     runs-on: ubuntu-latest
     timeout-minutes: 20

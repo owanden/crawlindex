@@ -2,6 +2,14 @@
 
 A Go crawler and PostgreSQL indexer for controlled HTML origins. Submit a URL, inspect its durable job, retrieve extracted text, and search a real full-text index. API and worker processes share PostgreSQL; workers coordinate leases and per-origin rate reservations through database transactions.
 
+## Reviewer demo
+
+```sh
+python scripts/reviewer_demo.py --output .work/reviewer-first
+```
+
+This one command runs two independent disposable stacks: a 24-page corpus for extraction/search, then a mutable fixture for changed-content refresh, failure, retained content and recovery. It preserves ordinary demo data and writes a real transcript plus source-stamped evidence. Use a fresh output directory on later runs. [Walkthrough and architecture trace](docs/walkthrough.md) link the output to code and verified crash/policy evidence; [recorded local output](docs/demo-local/transcript.txt) provides a preview. Python 3, Git and Docker Compose with Linux containers are required; host Go/PostgreSQL are not.
+
 ## Run locally
 
 Requires Docker Compose and Python 3 for the verification script. No host Go or PostgreSQL installation is needed.

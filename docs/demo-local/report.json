@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "started_at": "2026-10-27T14:04:57.852284+00:00",
+  "revision": "131f1f005e2ed2a4db4cd48939d4203764d4bf68",
+  "source_status": "M .github/workflows/ci.yaml\n M scripts/recrawl_smoke.py\n M scripts/workload.py\n?? scripts/reviewer_demo.py",
+  "corpus_source_status": "M .github/workflows/ci.yaml\n M scripts/recrawl_smoke.py\n M scripts/workload.py\n?? scripts/reviewer_demo.py",
+  "refresh_source_status": "M .github/workflows/ci.yaml\n M scripts/recrawl_smoke.py\n M scripts/workload.py\n?? scripts/reviewer_demo.py",
+  "showcase": {
+    "document": {
+      "id": 1,
+      "url": "http://fixture:8081/workload/pages/000",
+      "title": "Workload pageword000qx",
+      "generation": 1,
+      "body_excerpt": "corpusmarker pageword000qx page page page page page page page page page page page page page page page page page page page page page page page payload payload pa",
+      "text_sha256": "64beb4bff3a062e28e294de988b2ac1c9d7d4377c32331b46314d1907c9b3ba4"
+    },
+    "search_match": {
+      "id": 1,
+      "url": "http://fixture:8081/workload/pages/000",
+      "title": "Workload pageword000qx",
+      "generation": 1
+    },
+    "verified_documents": 24,
+    "verified_unique_searches": 24,
+    "refresh_generations": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "refresh_budget": {
+      "limit": 1,
+      "admitted": 1,
+      "remaining": 0
+    },
+    "owned_stacks_removed": 2,
+    "refresh_url": "http://fixture:8081/refresh"
+  },
+  "assets_sha256": {
+    "transcript.txt": "6c52686a2dda0a94258b4ba7f2fb7f334014e801c8015ec61dc6cd13a090b540",
+    "corpus/report.json": "63621f391be1f7b06fb0f9900c2fa67c6dd627a81617feff795c2ecbc2489778",
+    "corpus/observations.json": "ed9b1ac925505f8c295e5df2257e29f815cf4abcdb979a2bb5c3b99cc557a1e5",
+    "refresh/report.json": "25b15babda6bc8777a5acf7f6582fb5fffb718b1e2d955977d15fec82037aeb8"
+  },
+  "finished_at": "2026-10-27T14:06:21.528373+00:00",
+  "presentation_note": "Phase captions and excerpt labels clarified after the recorded run; API values and underlying child reports are unchanged. Original generated transcript is retained in the private source output directory."
+}
